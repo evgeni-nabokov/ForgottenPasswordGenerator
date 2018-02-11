@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
 namespace Lib.PasswordSections
 {
@@ -10,7 +6,7 @@ namespace Lib.PasswordSections
     {
         int MaxLength { get; }
         int MinLength { get; }
-        StringBuilder GetCurrentCombination();
+        StringBuilder CurrentCombination { get; }
         ulong GetCombinationCount();
         bool MoveToNextState();
         void ResetState();

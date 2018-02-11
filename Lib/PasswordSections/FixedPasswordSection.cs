@@ -12,39 +12,23 @@ namespace Lib.PasswordSections
             CharCase charCase = CharCase.AsDefined,
             ILetterMapper mapper = null)
         {
-            _originalChars = chars;
-            _charCase = charCase;
-            _languageLettersConverter = mapper;
+            OriginalChars = chars;
+            CharCase = charCase;
+            CharMapper = mapper;
             BuildChars();
         }
 
-        public int MaxLength => _originalChars.Length;
-        public int MinLength => _originalChars.Length;
+        public int MaxLength => OriginalChars.Length;
 
-        private string _originalChars;
-        public string OriginalChars
-        {
-            get => _originalChars;
-            set
-            {
-                _originalChars = value ?? string.Empty;
-                BuildChars();
-            }
-        }
+        public int MinLength => OriginalChars.Length;
 
-        private CharCase _charCase;
-        public CharCase CharCase
-        {
-            get => _charCase;
-            set
-            {
-                _charCase = value;
-                BuildChars();
-            }
-        }
+        public StringBuilder CurrentCombination => GetCurrentCombination();
 
-        private readonly ILetterMapper _languageLettersConverter;
-        public ILetterMapper LanguageLettersConverter => _languageLettersConverter;
+        public string OriginalChars { get; }
+
+        public CharCase CharCase { get; }
+
+        public ILetterMapper CharMapper { get; }
 
         public ulong GetCombinationCount()
         {
@@ -65,7 +49,7 @@ namespace Lib.PasswordSections
             } while (MoveToNextState());
         }
 
-        public StringBuilder GetCurrentCombination()
+        private StringBuilder GetCurrentCombination()
         {
             var builder = new StringBuilder(_chars.Length);
 
@@ -100,19 +84,19 @@ namespace Lib.PasswordSections
         {
             ResetState();
 
-            if (_originalChars.Length == 0)
+            if (OriginalChars.Length == 0)
             {
                 _chars = new char[0][];
                 return;
             }
 
-            _chars = new char[_originalChars.Length][];
+            _chars = new char[OriginalChars.Length][];
             var placeIndex = 0;
-            foreach (var c in _originalChars)
+            foreach (var c in OriginalChars)
             {
                 if (char.IsLetter(c))
                 {
-                    switch (_charCase)
+                    switch (CharCase)
                     {
                         case CharCase.AsDefined:
                             _chars[placeIndex] = new[] { c };
@@ -135,13 +119,13 @@ namespace Lib.PasswordSections
                 placeIndex++;
             }
 
-            if (_languageLettersConverter != null)
+            if (CharMapper != null)
             {
                 for (var i = 0; i < _chars.Length; i++)
                 {
                     for (var j = 0; j < _chars[i].Length; j++)
                     {
-                        if (_languageLettersConverter.TryGetLetter(_chars[i][j], out var convertedChar))
+                        if (CharMapper.TryGetLetter(_chars[i][j], out var convertedChar))
                         {
                             _chars[i][j] = convertedChar;
                         }

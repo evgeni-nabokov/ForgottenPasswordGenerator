@@ -6,12 +6,17 @@ namespace Lib.PasswordSections
 {
     public class PasswordPattern : IPasswordSection
     {
-        public PasswordPattern(IEnumerable<IPasswordSection> sections)
+        public PasswordPattern(IEnumerable<IPasswordSection> sections, int maxSingeCharSequence = 3)
         {
             Sections = new List<IPasswordSection>(sections);
+            MaxSingeCharSequence = maxSingeCharSequence;
         }
 
-        public IReadOnlyList<IPasswordSection> Sections { get; set; }
+        public IReadOnlyList<IPasswordSection> Sections { get; }
+
+        public int MaxSingeCharSequence { get; }
+
+        public StringBuilder CurrentCombination { get; private set; }
 
         public int MaxLength
         {
@@ -68,13 +73,13 @@ namespace Lib.PasswordSections
             } while (MoveToNextState());
         }
 
-        public StringBuilder GetCurrentCombination()
+        private StringBuilder GetCurrentCombination()
         {
-            var builder = new StringBuilder((int)MaxLength);
+            var builder = new StringBuilder(MaxLength);
 
             for (int i = 0; i < Sections.Count; i++)
             {
-                builder.Append(Sections[i].GetCurrentCombination());
+                builder.Append(Sections[i].CurrentCombination);
             }
 
             return builder;
@@ -85,6 +90,36 @@ namespace Lib.PasswordSections
             for (int i = 0; i < Sections.Count; i++)
             {
                 if (Sections[i].MoveToNextState()) return true;
+            }
+
+            var combination = GetCurrentCombination();
+            if (HasMaxSingeCharSequence(combination))
+            {
+                return MoveToNextState();
+            }
+            
+            CurrentCombination = combination;
+
+            return false;
+        }
+
+        private bool HasMaxSingeCharSequence(StringBuilder b)
+        {
+            var seqLength = 1;
+            for (int i = 1; i < b.Length; i++)
+            {
+                if (b[i - 1] == b[i])
+                {
+                    seqLength++;
+                    if (seqLength >= MaxSingeCharSequence)
+                    {
+                        return true;
+                    }
+                }
+                else
+                {
+                    seqLength = 1;
+                }
             }
             return false;
         }

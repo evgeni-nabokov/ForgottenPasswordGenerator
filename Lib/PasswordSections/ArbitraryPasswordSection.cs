@@ -39,6 +39,8 @@ namespace Lib.PasswordSections
 
         public CharCase CharCase { get; set; }
 
+        public StringBuilder CurrentCombination => GetCurrentCombination();
+
         public ulong GetCombinationCount()
         {
             ulong result = 0;
@@ -49,7 +51,7 @@ namespace Lib.PasswordSections
             return result;
         }
 
-        public StringBuilder GetCurrentCombination()
+        private StringBuilder GetCurrentCombination()
         {
             var builder = new StringBuilder(_currentLength);
 
@@ -68,6 +70,7 @@ namespace Lib.PasswordSections
                 if (_permutationState[i] < Chars.Length - 1)
                 {
                     _permutationState[i] += 1;
+
                     return true;
                 }
                 _permutationState[i] = 0;
