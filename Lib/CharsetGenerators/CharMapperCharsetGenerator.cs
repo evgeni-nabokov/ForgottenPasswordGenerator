@@ -1,13 +1,13 @@
 ﻿using System.Text;
-using Lib.LetterMappers;
+using Lib.CharMappers;
 
 namespace Lib.CharsetGenerators
 {
-    public class LetterMapCharsetGenerator : BaseCharsetDecorator
+    public class CharMapperCharsetGenerator : BaseCharsetDecorator
     {
-        private readonly ILetterMapper _mapper;
+        private readonly ICharMapper _mapper;
 
-        public LetterMapCharsetGenerator(ICharsetGenerator decoratee, ILetterMapper mapper) : base(decoratee)
+        public CharMapperCharsetGenerator(ICharsetGenerator decoratee, ICharMapper mapper) : base(decoratee)
         {
             _mapper = mapper;
         }

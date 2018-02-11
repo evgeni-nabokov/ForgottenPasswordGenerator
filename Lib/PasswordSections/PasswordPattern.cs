@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Text;
-using Lib.LetterMappers;
+using Lib.CharMappers;
 
 namespace Lib.PasswordSections
 {
@@ -156,7 +156,7 @@ namespace Lib.PasswordSections
         public PasswordPatternBuilder AddFixedPasswordSection(
             string chars,
             CharCase charCase = CharCase.AsDefined,
-            ILetterMapper mapper = null)
+            ICharMapper mapper = null)
         {
             _sections.Add(new FixedPasswordSection(chars, charCase, mapper));
             return this;
@@ -167,7 +167,7 @@ namespace Lib.PasswordSections
             int maxLength,
             int minLength = 1,
             CharCase charCase = CharCase.AsDefined,
-            ILetterMapper mapper = null)
+            ICharMapper mapper = null)
         {
             _sections.Add(new ArbitraryPasswordSection(chars, maxLength, minLength, charCase, mapper));
             return this;

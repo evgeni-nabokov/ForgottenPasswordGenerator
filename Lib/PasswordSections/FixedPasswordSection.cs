@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Lib.LetterMappers;
+using Lib.CharMappers;
 
 namespace Lib.PasswordSections
 {
@@ -10,7 +10,7 @@ namespace Lib.PasswordSections
         public FixedPasswordSection(
             string chars,
             CharCase charCase = CharCase.AsDefined,
-            ILetterMapper mapper = null)
+            ICharMapper mapper = null)
         {
             OriginalChars = chars;
             CharCase = charCase;
@@ -28,7 +28,7 @@ namespace Lib.PasswordSections
 
         public CharCase CharCase { get; }
 
-        public ILetterMapper CharMapper { get; }
+        public ICharMapper CharMapper { get; }
 
         public ulong GetCombinationCount()
         {

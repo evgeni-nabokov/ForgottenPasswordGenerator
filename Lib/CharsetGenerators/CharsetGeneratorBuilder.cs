@@ -1,4 +1,4 @@
-﻿using Lib.LetterMappers;
+﻿using Lib.CharMappers;
 
 namespace Lib.CharsetGenerators
 {
@@ -29,7 +29,7 @@ namespace Lib.CharsetGenerators
             return this;
         }
 
-        public CharsetGeneratorBuilder AddLetterMapperGenerator(ILetterMapper mapper)
+        public CharsetGeneratorBuilder AddLetterMapperGenerator(ICharMapper mapper)
         {
             _charsetGenerator = new LetterMapCharsetGenerator(_charsetGenerator, mapper);
             return this;

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 using Lib.CharsetGenerators;
-using Lib.LetterMappers;
+using Lib.CharMappers;
 
 namespace Lib.PasswordSections
 {
@@ -12,13 +12,13 @@ namespace Lib.PasswordSections
             int maxLength,
             int minLength = 1,
             CharCase charCase = CharCase.AsDefined,
-            ILetterMapper mapper = null)
+            ICharMapper mapper = null)
         {
             OriginalChars = chars;
             MaxLength = maxLength;
             MinLength = minLength;
             CharCase = charCase;
-            LetterMapper = mapper;
+            CharMapper = mapper;
 
             BuildGenerator();
             BuildChars();
@@ -31,7 +31,7 @@ namespace Lib.PasswordSections
 
         public int Size => Chars.Length;
 
-        public ILetterMapper LetterMapper { get; }
+        public ICharMapper CharMapper { get; }
 
         public string Chars { get; private set; }
 
@@ -114,9 +114,9 @@ namespace Lib.PasswordSections
                     break;
             }
 
-            if (LetterMapper != null)
+            if (CharMapper != null)
             {
-                builder.AddLetterMapperGenerator(LetterMapper);
+                builder.AddLetterMapperGenerator(CharMapper);
             }
 
             builder.AddUniquenessCharGenerator();

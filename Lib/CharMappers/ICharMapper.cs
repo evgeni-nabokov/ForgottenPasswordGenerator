@@ -1,6 +1,6 @@
-﻿namespace Lib.LetterMappers
+﻿namespace Lib.CharMappers
 {
-    public interface ILetterMapper
+    public interface ICharMapper
     {
         bool TryGetLetter(char inputLetter, out char outputLetter);
     }

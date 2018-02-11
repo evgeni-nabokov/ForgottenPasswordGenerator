@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using Lib;
-using Lib.LetterMappers;
+using Lib.CharMappers;
 using Lib.PasswordSections;
 
 namespace Cli

@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
-namespace Lib.LetterMappers
+namespace Lib.CharMappers
 {
-    public class RussianToEnglishMapper : ILetterMapper
+    public class RussianToEnglishMapper : ICharMapper
     {
         public bool TryGetLetter(char russianLetter, out char englishLetter)
         {
