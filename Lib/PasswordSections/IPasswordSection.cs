@@ -6,7 +6,7 @@ namespace Lib.PasswordSections
     {
         int MaxLength { get; }
         int MinLength { get; }
-        StringBuilder CurrentCombination { get; }
+        StringBuilder GetCurrentCombination();
         ulong GetCombinationCount();
         bool MoveToNextState();
         void ResetState();

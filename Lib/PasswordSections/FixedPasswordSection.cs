@@ -22,8 +22,6 @@ namespace Lib.PasswordSections
 
         public int MinLength => OriginalChars.Length;
 
-        public StringBuilder CurrentCombination => GetCurrentCombination();
-
         public string OriginalChars { get; }
 
         public CharCase CharCase { get; }
@@ -49,7 +47,7 @@ namespace Lib.PasswordSections
             } while (MoveToNextState());
         }
 
-        private StringBuilder GetCurrentCombination()
+        public StringBuilder GetCurrentCombination()
         {
             var builder = new StringBuilder(_chars.Length);
 

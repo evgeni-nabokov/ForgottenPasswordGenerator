@@ -31,13 +31,13 @@ namespace Lib.CharsetGenerators
 
         public CharsetGeneratorBuilder AddLetterMapperGenerator(ICharMapper mapper)
         {
-            _charsetGenerator = new LetterMapCharsetGenerator(_charsetGenerator, mapper);
+            _charsetGenerator = new CharMapperCharsetGenerator(_charsetGenerator, mapper);
             return this;
         }
 
         public CharsetGeneratorBuilder AddUniquenessCharGenerator()
         {
-            _charsetGenerator = new UniquenessCharCharsetGenerator(_charsetGenerator);
+            _charsetGenerator = new UniquenessCharsetGenerator(_charsetGenerator);
             return this;
         }
 

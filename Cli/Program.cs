@@ -2,7 +2,7 @@
 using System.IO;
 using Lib;
 using Lib.CharMappers;
-using Lib.PasswordSections;
+using Lib.PasswordPattern;
 
 namespace Cli
 {

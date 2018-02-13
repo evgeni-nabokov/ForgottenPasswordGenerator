@@ -3,9 +3,9 @@ using System.Text;
 
 namespace Lib.CharsetGenerators
 {
-    public class UniquenessCharCharsetGenerator : BaseCharsetDecorator
+    public class UniquenessCharsetGenerator : BaseCharsetDecorator
     {
-        public UniquenessCharCharsetGenerator(ICharsetGenerator decoratee) : base(decoratee)
+        public UniquenessCharsetGenerator(ICharsetGenerator decoratee) : base(decoratee)
         {
         }
 
