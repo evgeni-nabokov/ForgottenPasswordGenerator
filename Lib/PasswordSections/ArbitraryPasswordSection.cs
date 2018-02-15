@@ -15,8 +15,8 @@ namespace Lib.PasswordSections
             ICharMapper mapper = null)
         {
             OriginalChars = chars;
-            MaxLength = maxLength;
-            MinLength = minLength;
+            MaxLength = maxLength < 1 ? 1 : maxLength;
+            MinLength = minLength < 1 ? 1 : minLength;
             CharCase = charCase;
             CharMapper = mapper;
 

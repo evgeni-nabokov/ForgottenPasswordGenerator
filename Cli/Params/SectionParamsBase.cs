@@ -1,0 +1,11 @@
+﻿using Lib;
+
+namespace Cli.Params
+{
+    public abstract class SectionParamsBase
+    {
+        public string Chars { get; set; }
+        public string CharMapper { get; set; }
+        public CharCase CharCase { get; set; }
+    }
+}

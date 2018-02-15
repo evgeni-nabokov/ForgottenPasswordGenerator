@@ -1,40 +1,37 @@
 ﻿using System;
 using System.IO;
-using Lib;
-using Lib.CharMappers;
+using Cli.Params;
+using Cli.Yaml;
 using Lib.PasswordPattern;
-using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
-using YamlDotNet.Serialization.Utilities;
 
 namespace Cli
 {
     internal class Program
     {
-        private static string filename = "combinations.txt";
+        private static string defaultFilename = "passwords.txt";
 
         static void Main(string[] args)
         {
-            var deserializer = new DeserializerBuilder()
-                                    .WithNamingConvention(new CamelCaseNamingConvention())
-                                    //.WithTypeConverter(new TypeConverter())
-                                    .IgnoreUnmatchedProperties()
-                                    .Build();
-            var patternParams = deserializer.Deserialize<PatternParams>(File.ReadAllText(args[0]));
+            var loader = new YamlParamLoader();
+            var patternParams = loader.Load(args[0]);
 
-            var passwordPattern = new PasswordPatternBuilder(2)
-                .AddArbitraryPasswordSection("01", 3, 2, CharCase.UpperAndLower, new RussianToEnglishMapper())
-                .Build();
+            patternParams.OutputFilename = patternParams.OutputFilename?.Trim();
+            if (string.IsNullOrEmpty(patternParams.OutputFilename))
+            {
+                patternParams.OutputFilename = defaultFilename;
+            }
+
+            var passwordPattern = CreatePasswordPatternFromParams(patternParams);
 
             Console.WriteLine("Combinations: {0:N0}", passwordPattern.GetCombinationCount());
-            Console.WriteLine($"Generate combinations into the file {filename}? (y/n)");
+            Console.WriteLine($"Generate combinations into the file {patternParams.OutputFilename}? (y/n)");
             if (Console.ReadLine()?.ToLower() == "n")
             {
                 Console.WriteLine("Canceled");
                 return;
             }
             
-            using (var fileStream = new FileStream(filename, FileMode.Create))
+            using (var fileStream = new FileStream(patternParams.OutputFilename, FileMode.Create))
             using (var writer = new StreamWriter(fileStream))
             {
                 foreach (var combination in passwordPattern.GetCombinations())
@@ -45,35 +42,29 @@ namespace Cli
 
             Console.WriteLine("Done");
         }
+
+        private static PasswordPattern CreatePasswordPatternFromParams(PatternParams patternParams)
+        {
+            var passwordPatternBuilder = new PasswordPatternBuilder(
+                patternParams.Sections.Length,
+                patternParams.MaxSingeCharSequence
+            );
+
+            for (var i = 0; i < patternParams.Sections.Length; i++)
+            {
+                var sectionParams = patternParams.Sections[i];
+                if (sectionParams is FixedSectionParams)
+                {
+                    passwordPatternBuilder.AddFixedPasswordSection(sectionParams.Chars);
+                }
+                else if (sectionParams is ArbitrarySectionParams)
+                {
+                    var p = sectionParams as ArbitrarySectionParams;
+                    passwordPatternBuilder.AddArbitraryPasswordSection(p.Chars, p.MaxLength, p.MinLength);
+                }
+            }
+
+            return passwordPatternBuilder.Build();
+        }
     }
-
-    public class PatternParams
-    {
-        public string OutputFilename { get; set; }
-        public int? MaxSingeCharSequence { get; set; }
-        public SectionParamsBase[] Sections { get; set; }
-    }
-
-
-    public abstract class SectionParamsBase
-    {
-        public string Chars { get; set; }
-        public string CharMapper { get; set; }
-        public CharCase CharCase { get; set; }
-    }
-
-    public class ArbitrarySectionParams : SectionParamsBase
-    {
-        public int MaxLength { get; set; }
-        public int MinLength { get; set; }
-    }
-
-    public class FixedSectionParams : SectionParamsBase
-    {
-    }
-
-    //public class TypeConverter : IYamlTypeConverter
-    //{
-        
-    //}
 }

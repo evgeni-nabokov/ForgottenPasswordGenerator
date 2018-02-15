@@ -17,9 +17,9 @@ namespace Lib.PasswordPattern
             _maxSingeCharSequence = maxSingeCharSequence;
         }
 
-        public PasswordPatternBuilder(int size, int? maxSingeCharSequence = null)
+        public PasswordPatternBuilder(int numberOfSection, int? maxSingeCharSequence = null)
         {
-            _sections = new List<IPasswordSection>(size);
+            _sections = new List<IPasswordSection>(numberOfSection);
             _maxSingeCharSequence = maxSingeCharSequence;
         }
 
