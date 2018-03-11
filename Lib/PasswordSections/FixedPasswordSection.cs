@@ -9,10 +9,12 @@ namespace Lib.PasswordSections
     {
         public FixedPasswordSection(
             string chars,
+            int? minLength = null,
             CharCase charCase = CharCase.AsDefined,
             ICharMapper mapper = null)
         {
             OriginalChars = chars;
+            MinLength = minLength > 0 ? minLength.Value : OriginalChars.Length;
             CharCase = charCase;
             CharMapper = mapper;
             BuildChars();
@@ -20,7 +22,7 @@ namespace Lib.PasswordSections
 
         public int MaxLength => OriginalChars.Length;
 
-        public int MinLength => OriginalChars.Length;
+        public int MinLength { get; }
 
         public string OriginalChars { get; }
 
@@ -49,9 +51,9 @@ namespace Lib.PasswordSections
 
         public StringBuilder GetCurrentCombination()
         {
-            var builder = new StringBuilder(_chars.Length);
+            var builder = new StringBuilder(_currentLength);
 
-            for (var i = 0; i < _chars.Length; i++)
+            for (var i = 0; i < _currentLength; i++)
             {
                 builder.Append(_chars[i][_permutationState[i]]);
             }
@@ -61,7 +63,7 @@ namespace Lib.PasswordSections
 
         public bool MoveToNextState()
         {
-            for (var i = 0; i < _chars.Length; i++)
+            for (var i = 0; i < _currentLength; i++)
             {
                 if (_permutationState[i] < _chars[i].Length - 1)
                 {
@@ -70,12 +72,21 @@ namespace Lib.PasswordSections
                 }
                 _permutationState[i] = 0;
             }
+
+            if (_currentLength < MaxLength)
+            {
+                _currentLength++;
+                _permutationState = new int[_currentLength];
+                return true;
+            }
+
             return false;
         }
 
         public void ResetState()
         {
-            _permutationState = new int[MaxLength];
+            _currentLength = MinLength;
+            _permutationState = new int[_currentLength];
         }
 
         private void BuildChars()
@@ -134,5 +145,6 @@ namespace Lib.PasswordSections
 
         private char[][] _chars;
         private int[] _permutationState;
+        private int _currentLength;
     }
 }

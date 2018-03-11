@@ -13,7 +13,7 @@ namespace Test
         [Fact]
         public void Test1()
         {
-            var passwordPattern = new PasswordPatternBuilder(2)
+            var passwordPattern = new PasswordPatternBuilder()
                 .AddArbitraryPasswordSection("01", 2, 2)
                 .Build();
 
@@ -29,7 +29,7 @@ namespace Test
         [Fact]
         public void Test2()
         {
-            var passwordPattern = new PasswordPatternBuilder(2)
+            var passwordPattern = new PasswordPatternBuilder(1)
                 .AddArbitraryPasswordSection("01", 2, 1)
                 .Build();
 
@@ -47,7 +47,7 @@ namespace Test
         [Fact]
         public void Test3()
         {
-            var passwordPattern = new PasswordPatternBuilder(2, 1)
+            var passwordPattern = new PasswordPatternBuilder(1, 1)
                 .AddArbitraryPasswordSection("01", 2, 2)
                 .Build();
 
@@ -61,7 +61,7 @@ namespace Test
         [Fact]
         public void Test4()
         {
-            var passwordPattern = new PasswordPatternBuilder(2, 2)
+            var passwordPattern = new PasswordPatternBuilder(1, 2)
                 .AddArbitraryPasswordSection("01", 2, 2)
                 .Build();
 
@@ -71,6 +71,40 @@ namespace Test
             expected.AppendLine("10");
             expected.AppendLine("01");
             expected.AppendLine("11");
+            Assert.Equal(expected.ToString(), actual);
+        }
+
+        [Fact]
+        public void Test5()
+        {
+            var passwordPattern = new PasswordPatternBuilder(1, 2)
+                .AddFixedPasswordSection("ab", null, CharCase.UpperAndLower)
+                .Build();
+
+            var actual = passwordPattern.GetCombinationsString();
+            var expected = new StringBuilder();
+            expected.AppendLine("ab");
+            expected.AppendLine("Ab");
+            expected.AppendLine("aB");
+            expected.AppendLine("AB");
+            Assert.Equal(expected.ToString(), actual);
+        }
+
+        [Fact]
+        public void Test6()
+        {
+            var passwordPattern = new PasswordPatternBuilder(1, 2)
+                .AddFixedPasswordSection("ab", 1, CharCase.UpperAndLower)
+                .Build();
+
+            var actual = passwordPattern.GetCombinationsString();
+            var expected = new StringBuilder();
+            expected.AppendLine("a");
+            expected.AppendLine("A");
+            expected.AppendLine("ab");
+            expected.AppendLine("Ab");
+            expected.AppendLine("aB");
+            expected.AppendLine("AB");
             Assert.Equal(expected.ToString(), actual);
         }
     }

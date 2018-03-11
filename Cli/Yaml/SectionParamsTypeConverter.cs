@@ -34,14 +34,13 @@ namespace Cli.Yaml
                 switch (sectionName)
                 {
                     case "fixed":
-                        result = sectionDeserializer.Deserialize<ArbitrarySectionParams>(parser);
+                        result = sectionDeserializer.Deserialize<FixedSectionParams>(parser);
                         break;
                     default:
                         result = sectionDeserializer.Deserialize<ArbitrarySectionParams>(parser);
                         break;
                 }
                 parser.MoveNext();
-
             } while (parser.Current.GetType() != SequenceEndType);
 
             return result;

@@ -68,7 +68,6 @@ namespace Lib.PasswordSections
                 if (_permutationState[i] < Chars.Length - 1)
                 {
                     _permutationState[i] += 1;
-
                     return true;
                 }
                 _permutationState[i] = 0;

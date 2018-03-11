@@ -31,10 +31,11 @@ namespace Lib.PasswordPattern
 
         public PasswordPatternBuilder AddFixedPasswordSection(
             string chars,
+            int? minLength = null,
             CharCase charCase = CharCase.AsDefined,
             ICharMapper mapper = null)
         {
-            _sections.Add(new FixedPasswordSection(chars, charCase, mapper));
+            _sections.Add(new FixedPasswordSection(chars, minLength, charCase, mapper));
             return this;
         }
 
