@@ -107,5 +107,18 @@ namespace Test
             expected.AppendLine("AB");
             Assert.Equal(expected.ToString(), actual);
         }
+
+        [Fact]
+        public void Test7()
+        {
+            var passwordPattern = new PasswordPatternBuilder(1, 2)
+                .AddFixedPasswordSection("ab", 1, CharCase.UpperAndLower)
+                .Build();
+
+            var actual = passwordPattern.GetCombinationCount();
+            var expected = 6ul;
+
+            Assert.Equal(expected, actual);
+        }
     }
 }

@@ -32,11 +32,18 @@ namespace Lib.PasswordSections
 
         public ulong GetCombinationCount()
         {
-            var result = 1ul;
-            for (var i = 0; i < _chars.Length; i++)
+            var result = 0ul;
+            for(var i = MinLength; i <= MaxLength; i++)
             {
-                result *= (ulong)_chars[i].Length;
+                var currentLengthCount = 1ul;
+                for (var j = 0; j < i; j++)
+                {
+                    currentLengthCount *= (ulong)_chars[j].Length;
+                }
+                result += currentLengthCount;
             }
+
+           
             return result;
         }
 
