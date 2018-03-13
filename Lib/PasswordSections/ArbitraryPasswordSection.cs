@@ -10,13 +10,13 @@ namespace Lib.PasswordSections
         public ArbitraryPasswordSection(
             string chars,
             int maxLength,
-            int minLength = 1,
+            int minLength = 0,
             CharCase charCase = CharCase.AsDefined,
             ICharMapper mapper = null)
         {
             OriginalChars = chars;
             MaxLength = maxLength < 1 ? 1 : maxLength;
-            MinLength = minLength < 1 ? 1 : minLength;
+            MinLength = minLength < 0 ? 0 : minLength;
             CharCase = charCase;
             CharMapper = mapper;
 

@@ -11,7 +11,7 @@ namespace Test
     public class Tests
     {
         [Fact]
-        public void Test1()
+        public void ApsFixedLengthCombinationsStringTest()
         {
             var passwordPattern = new PasswordPatternBuilder()
                 .AddArbitraryPasswordSection("01", 2, 2)
@@ -27,14 +27,15 @@ namespace Test
         }
 
         [Fact]
-        public void Test2()
+        public void ApsVariableLengthCombinationsStringTest()
         {
-            var passwordPattern = new PasswordPatternBuilder(1)
-                .AddArbitraryPasswordSection("01", 2, 1)
+            var passwordPattern = new PasswordPatternBuilder()
+                .AddArbitraryPasswordSection("01", 2)
                 .Build();
 
             var actual = passwordPattern.GetCombinationsString();
             var expected = new StringBuilder();
+            expected.AppendLine("");
             expected.AppendLine("0");
             expected.AppendLine("1");
             expected.AppendLine("00");
@@ -45,9 +46,9 @@ namespace Test
         }
 
         [Fact]
-        public void Test3()
+        public void ApsNoSingleCharSequenceCombinationsStringTest()
         {
-            var passwordPattern = new PasswordPatternBuilder(1, 1)
+            var passwordPattern = new PasswordPatternBuilder(1)
                 .AddArbitraryPasswordSection("01", 2, 2)
                 .Build();
 
@@ -59,25 +60,23 @@ namespace Test
         }
 
         [Fact]
-        public void Test4()
+        public void ApsFixedLengthNoSingleCharSequenceCombinationsStringTest()
         {
-            var passwordPattern = new PasswordPatternBuilder(1, 2)
+            var passwordPattern = new PasswordPatternBuilder(1)
                 .AddArbitraryPasswordSection("01", 2, 2)
                 .Build();
 
             var actual = passwordPattern.GetCombinationsString();
             var expected = new StringBuilder();
-            expected.AppendLine("00");
             expected.AppendLine("10");
             expected.AppendLine("01");
-            expected.AppendLine("11");
             Assert.Equal(expected.ToString(), actual);
         }
 
         [Fact]
-        public void Test5()
+        public void FpsFixedLengthUpperAndLowerCombinationsStringTest()
         {
-            var passwordPattern = new PasswordPatternBuilder(1, 2)
+            var passwordPattern = new PasswordPatternBuilder()
                 .AddFixedPasswordSection("ab", null, CharCase.UpperAndLower)
                 .Build();
 
@@ -91,14 +90,15 @@ namespace Test
         }
 
         [Fact]
-        public void Test6()
+        public void FpsVariableLengthUpperAndLowerCombinationsStringTest()
         {
-            var passwordPattern = new PasswordPatternBuilder(1, 2)
-                .AddFixedPasswordSection("ab", 1, CharCase.UpperAndLower)
+            var passwordPattern = new PasswordPatternBuilder(2)
+                .AddFixedPasswordSection("ab", 0, CharCase.UpperAndLower)
                 .Build();
 
             var actual = passwordPattern.GetCombinationsString();
             var expected = new StringBuilder();
+            expected.AppendLine("");
             expected.AppendLine("a");
             expected.AppendLine("A");
             expected.AppendLine("ab");
@@ -109,14 +109,14 @@ namespace Test
         }
 
         [Fact]
-        public void Test7()
+        public void FpsVariableLengthCombinationCountTest()
         {
-            var passwordPattern = new PasswordPatternBuilder(1, 2)
-                .AddFixedPasswordSection("ab", 1, CharCase.UpperAndLower)
+            var passwordPattern = new PasswordPatternBuilder(2)
+                .AddFixedPasswordSection("ab", 0, CharCase.UpperAndLower)
                 .Build();
 
             var actual = passwordPattern.GetCombinationCount();
-            var expected = 6ul;
+            var expected = 7ul;
 
             Assert.Equal(expected, actual);
         }

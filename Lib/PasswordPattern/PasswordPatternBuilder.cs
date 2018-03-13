@@ -13,13 +13,7 @@ namespace Lib.PasswordPattern
 
         public PasswordPatternBuilder(int? maxSingeCharSequence = null)
         {
-            _sections = new List<IPasswordSection>();
-            _maxSingeCharSequence = maxSingeCharSequence;
-        }
-
-        public PasswordPatternBuilder(int numberOfSection, int? maxSingeCharSequence = null)
-        {
-            _sections = new List<IPasswordSection>(numberOfSection);
+            _sections = new List<IPasswordSection>(4);
             _maxSingeCharSequence = maxSingeCharSequence;
         }
 
@@ -42,7 +36,7 @@ namespace Lib.PasswordPattern
         public PasswordPatternBuilder AddArbitraryPasswordSection(
             string chars,
             int maxLength,
-            int minLength = 1,
+            int minLength = 0,
             CharCase charCase = CharCase.AsDefined,
             ICharMapper mapper = null)
         {

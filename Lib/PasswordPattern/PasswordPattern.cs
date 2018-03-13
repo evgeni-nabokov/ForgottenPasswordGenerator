@@ -7,15 +7,15 @@ namespace Lib.PasswordPattern
 {
     public class PasswordPattern : IPasswordSection
     {
-        public PasswordPattern(IEnumerable<IPasswordSection> sections, int? maxSingeCharSequence = null)
+        public PasswordPattern(IEnumerable<IPasswordSection> sections, int? maxSingeCharSequenceLength = null)
         {
             Sections = new List<IPasswordSection>(sections);
-            MaxSingeCharSequence = maxSingeCharSequence < 1 ? null : maxSingeCharSequence;
+            MaxSingeCharSequenceLength = maxSingeCharSequenceLength < 1 ? null : maxSingeCharSequenceLength;
         }
 
         public IReadOnlyList<IPasswordSection> Sections { get; }
 
-        public int? MaxSingeCharSequence { get; }
+        public int? MaxSingeCharSequenceLength { get; }
 
         public int MaxLength
         {
@@ -84,7 +84,7 @@ namespace Lib.PasswordPattern
                 }
                 else
                 {
-                    throw new Exception("There is no any combination.");
+                    throw new Exception("There are no more combination.");
                 }
             }
             else
@@ -127,7 +127,7 @@ namespace Lib.PasswordPattern
 
         private bool HasMaxSingeCharSequence(StringBuilder b)
         {
-            if (!MaxSingeCharSequence.HasValue) return false;
+            if (!MaxSingeCharSequenceLength.HasValue) return false;
 
             var seqLength = 1;
             for (int i = 1; i < b.Length; i++)
@@ -135,7 +135,7 @@ namespace Lib.PasswordPattern
                 if (b[i - 1] == b[i])
                 {
                     seqLength++;
-                    if (seqLength > MaxSingeCharSequence)
+                    if (seqLength > MaxSingeCharSequenceLength)
                     {
                         return true;
                     }

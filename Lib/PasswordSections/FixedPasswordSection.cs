@@ -14,7 +14,7 @@ namespace Lib.PasswordSections
             ICharMapper mapper = null)
         {
             OriginalChars = chars;
-            MinLength = minLength > 0 ? minLength.Value : OriginalChars.Length;
+            MinLength = minLength >= 0 ? minLength.Value : OriginalChars.Length;
             CharCase = charCase;
             CharMapper = mapper;
             BuildChars();
