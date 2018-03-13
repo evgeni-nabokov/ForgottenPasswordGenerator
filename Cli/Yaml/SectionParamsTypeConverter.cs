@@ -10,7 +10,7 @@ namespace Cli.Yaml
     internal class SectionParamsTypeConverter : IYamlTypeConverter
     {
         private static readonly Type SectionParamsBaseNodeType = typeof(SectionParamsBase);
-        private static readonly Type SequenceEndType = typeof(SequenceEnd);
+        private static readonly Type EndType = typeof(MappingEnd);
 
         public bool Accepts(Type type)
         {
@@ -40,9 +40,8 @@ namespace Cli.Yaml
                         result = sectionDeserializer.Deserialize<ArbitrarySectionParams>(parser);
                         break;
                 }
-                parser.MoveNext();
-            } while (parser.Current.GetType() != SequenceEndType);
-
+            } while (parser.Current.GetType() != EndType);
+            parser.MoveNext();
             return result;
         }
 

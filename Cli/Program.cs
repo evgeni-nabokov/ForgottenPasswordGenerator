@@ -24,7 +24,7 @@ namespace Cli
             var passwordPattern = CreatePasswordPatternFromParams(patternParams);
 
             Console.WriteLine("Combinations: {0:N0}", passwordPattern.GetCombinationCount());
-            Console.WriteLine($"Generate combinations into the file {patternParams.OutputFilename}? (y/n)");
+            Console.WriteLine($"Generate combinations and save them into the file {patternParams.OutputFilename}? (y/n)");
             if (Console.ReadLine()?.ToLower() == "n")
             {
                 Console.WriteLine("Canceled");
