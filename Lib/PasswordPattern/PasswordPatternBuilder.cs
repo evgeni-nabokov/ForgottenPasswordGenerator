@@ -36,7 +36,7 @@ namespace Lib.PasswordPattern
         public PasswordPatternBuilder AddArbitraryPasswordSection(
             string chars,
             int maxLength,
-            int minLength = 0,
+            int? minLength = null,
             CharCase charCase = CharCase.AsDefined,
             ICharMapper mapper = null)
         {

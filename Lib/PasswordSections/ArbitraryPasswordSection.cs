@@ -10,13 +10,13 @@ namespace Lib.PasswordSections
         public ArbitraryPasswordSection(
             string chars,
             int maxLength,
-            int minLength = 0,
+            int? minLength = null,
             CharCase charCase = CharCase.AsDefined,
             ICharMapper mapper = null)
         {
             OriginalChars = chars;
             MaxLength = maxLength < 1 ? 1 : maxLength;
-            MinLength = minLength < 0 ? 0 : minLength;
+            MinLength = NormalizeMinLength(minLength);
             CharCase = charCase;
             CharMapper = mapper;
 
@@ -119,6 +119,12 @@ namespace Lib.PasswordSections
             builder.AddUniquenessCharGenerator();
 
             _charSetGenerator = builder.Build();
+        }
+
+        private int NormalizeMinLength(int? minLength)
+        {
+            var result = minLength ?? 0;
+            return Math.Min(Math.Max(0, result), MaxLength);
         }
 
         private ICharsetGenerator _charSetGenerator;

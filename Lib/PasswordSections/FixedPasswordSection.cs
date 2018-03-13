@@ -14,7 +14,7 @@ namespace Lib.PasswordSections
             ICharMapper mapper = null)
         {
             OriginalChars = chars;
-            MinLength = minLength >= 0 ? minLength.Value : OriginalChars.Length;
+            MinLength = NormalizeMinLength(minLength);
             CharCase = charCase;
             CharMapper = mapper;
             BuildChars();
@@ -148,6 +148,12 @@ namespace Lib.PasswordSections
                     }
                 }
             }
+        }
+
+        private int NormalizeMinLength(int? minLength)
+        {
+            var result = minLength ?? MaxLength;
+            return Math.Min(Math.Max(0, result), MaxLength);
         }
 
         private char[][] _chars;
