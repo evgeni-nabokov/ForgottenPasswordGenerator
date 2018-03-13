@@ -7,5 +7,6 @@ namespace Cli.Params
         public string Chars { get; set; }
         public string CharMapper { get; set; }
         public CharCase CharCase { get; set; }
+        public int MinLength { get; set; }
     }
 }

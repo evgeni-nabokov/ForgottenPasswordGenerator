@@ -7,6 +7,5 @@ namespace Cli.Params
     public class ArbitrarySectionParams : SectionParamsBase
     {
         public int MaxLength { get; set; }
-        public int MinLength { get; set; }
     }
 }
