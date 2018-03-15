@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using Lib.CharMappers;
@@ -30,45 +31,50 @@ namespace Lib.PasswordSections
 
         public ICharMapper CharMapper { get; }
 
-        public ulong GetCombinationCount()
+        public ulong Count
         {
-            var result = 0ul;
-            for(var i = MinLength; i <= MaxLength; i++)
+            get
             {
-                var currentLengthCount = 1ul;
-                for (var j = 0; j < i; j++)
+                var result = 0ul;
+                for (var i = MinLength; i <= MaxLength; i++)
                 {
-                    currentLengthCount *= (ulong)_chars[j].Length;
+                    var currentLengthCount = 1ul;
+                    for (var j = 0; j < i; j++)
+                    {
+                        currentLengthCount *= (ulong) _chars[j].Length;
+                    }
+                    result += currentLengthCount;
                 }
-                result += currentLengthCount;
-            }
 
-           
-            return result;
+                return result;
+            }
         }
 
-        public IEnumerable<string> GetCombinations()
+        public IEnumerable<string> GetVariations()
         {
             do
             {
-                yield return GetCurrentCombination().ToString();
+                yield return Current;
 
-            } while (MoveToNextState());
+            } while (MoveNext());
         }
 
-        public StringBuilder GetCurrentCombination()
+        public string Current
         {
-            var builder = new StringBuilder(_currentLength);
-
-            for (var i = 0; i < _currentLength; i++)
+            get
             {
-                builder.Append(_chars[i][_permutationState[i]]);
-            }
+                var builder = new StringBuilder(_currentLength);
 
-            return builder;
+                for (var i = 0; i < _currentLength; i++)
+                {
+                    builder.Append(_chars[i][_permutationState[i]]);
+                }
+
+                return builder.ToString();
+            }
         }
 
-        public bool MoveToNextState()
+        public bool MoveNext()
         {
             for (var i = 0; i < _currentLength; i++)
             {
@@ -90,15 +96,21 @@ namespace Lib.PasswordSections
             return false;
         }
 
-        public void ResetState()
+        public void Reset()
         {
             _currentLength = MinLength;
             _permutationState = new int[_currentLength];
         }
 
+        public void Dispose()
+        {
+        }
+
+        object IEnumerator.Current => Current;
+
         private void BuildChars()
         {
-            ResetState();
+            Reset();
 
             if (OriginalChars.Length == 0)
             {

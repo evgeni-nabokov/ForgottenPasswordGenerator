@@ -11,13 +11,13 @@ namespace Test
     public class Tests
     {
         [Fact]
-        public void ApsFixedLengthCombinationsStringTest()
+        public void ApsFixedLengthVariationsStringTest()
         {
             var passwordPattern = new PasswordPatternBuilder()
                 .AddArbitraryPasswordSection("01", 2, 2)
                 .Build();
 
-            var actual = passwordPattern.GetCombinationsString();
+            var actual = passwordPattern.GetVariationsString();
             var expected = new StringBuilder();
             expected.AppendLine("00");
             expected.AppendLine("10");
@@ -27,13 +27,13 @@ namespace Test
         }
 
         [Fact]
-        public void ApsVariableLengthCombinationsStringTest()
+        public void ApsVariableLengthVariationsStringTest()
         {
             var passwordPattern = new PasswordPatternBuilder()
                 .AddArbitraryPasswordSection("01", 2)
                 .Build();
 
-            var actual = passwordPattern.GetCombinationsString();
+            var actual = passwordPattern.GetVariationsString();
             var expected = new StringBuilder();
             expected.AppendLine("");
             expected.AppendLine("0");
@@ -46,13 +46,13 @@ namespace Test
         }
 
         [Fact]
-        public void ApsNoSingleCharSequenceCombinationsStringTest()
+        public void ApsNoSingleCharSequenceVariationsStringTest()
         {
             var passwordPattern = new PasswordPatternBuilder(1)
                 .AddArbitraryPasswordSection("01", 2, 2)
                 .Build();
 
-            var actual = passwordPattern.GetCombinationsString();
+            var actual = passwordPattern.GetVariationsString();
             var expected = new StringBuilder();
             expected.AppendLine("10");
             expected.AppendLine("01");
@@ -60,13 +60,13 @@ namespace Test
         }
 
         [Fact]
-        public void ApsFixedLengthNoSingleCharSequenceCombinationsStringTest()
+        public void ApsFixedLengthNoSingleCharSequenceVariationsStringTest()
         {
             var passwordPattern = new PasswordPatternBuilder(1)
                 .AddArbitraryPasswordSection("01", 2, 2)
                 .Build();
 
-            var actual = passwordPattern.GetCombinationsString();
+            var actual = passwordPattern.GetVariationsString();
             var expected = new StringBuilder();
             expected.AppendLine("10");
             expected.AppendLine("01");
@@ -74,13 +74,13 @@ namespace Test
         }
 
         [Fact]
-        public void FpsFixedLengthUpperAndLowerCombinationsStringTest()
+        public void FpsFixedLengthUpperAndLowerVariationsStringTest()
         {
             var passwordPattern = new PasswordPatternBuilder()
                 .AddFixedPasswordSection("ab", null, CharCase.UpperAndLower)
                 .Build();
 
-            var actual = passwordPattern.GetCombinationsString();
+            var actual = passwordPattern.GetVariationsString();
             var expected = new StringBuilder();
             expected.AppendLine("ab");
             expected.AppendLine("Ab");
@@ -90,13 +90,13 @@ namespace Test
         }
 
         [Fact]
-        public void FpsVariableLengthUpperAndLowerCombinationsStringTest()
+        public void FpsVariableLengthUpperAndLowerVariationsStringTest()
         {
             var passwordPattern = new PasswordPatternBuilder(2)
                 .AddFixedPasswordSection("ab", 0, CharCase.UpperAndLower)
                 .Build();
 
-            var actual = passwordPattern.GetCombinationsString();
+            var actual = passwordPattern.GetVariationsString();
             var expected = new StringBuilder();
             expected.AppendLine("");
             expected.AppendLine("a");
@@ -115,7 +115,7 @@ namespace Test
                 .AddFixedPasswordSection("ab", 0, CharCase.UpperAndLower)
                 .Build();
 
-            var actual = passwordPattern.GetCombinationCount();
+            var actual = passwordPattern.Count;
             var expected = 7ul;
 
             Assert.Equal(expected, actual);

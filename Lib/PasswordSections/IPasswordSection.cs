@@ -1,14 +1,12 @@
-﻿using System.Text;
+﻿using System.Collections.Generic;
 
 namespace Lib.PasswordSections
 {
-    public interface IPasswordSection
+    public interface IPasswordSection : IEnumerator<string>
     {
         int MaxLength { get; }
         int MinLength { get; }
-        StringBuilder GetCurrentCombination();
-        ulong GetCombinationCount();
-        bool MoveToNextState();
-        void ResetState();
+        ulong Count { get; }
+        IEnumerable<string> GetVariations();
     }
 }

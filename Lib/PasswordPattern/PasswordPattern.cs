@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using Lib.PasswordSections;
@@ -47,62 +48,68 @@ namespace Lib.PasswordPattern
             }
         }
 
-        public ulong GetCombinationCount()
+        public ulong Count
         {
-            var result = 1ul;
-
-            if (Sections == null || Sections.Count == 0) return result;
-
-            for (var i = 0; i < Sections.Count; i++)
+            get
             {
-                result *= Sections[i].GetCombinationCount();
-            }
+                var result = 1ul;
 
-            return result;
+                if (Sections == null || Sections.Count == 0) return result;
+
+                for (var i = 0; i < Sections.Count; i++)
+                {
+                    result *= Sections[i].Count;
+                }
+
+                return result;
+            }
         }
 
-        public IEnumerable<string> GetCombinations()
+        public IEnumerable<string> GetVariations()
         {
             if (Sections == null || Sections.Count == 0) yield break;
 
             do
             {
-                yield return GetCurrentCombination().ToString();
+                yield return Current;
 
-            } while (MoveToNextState());
+            } while (MoveNext());
         }
 
-        public StringBuilder GetCurrentCombination()
+        public string Current
         {
-            var result = BuildCurrentCombination();
-
-            if (HasMaxSingeCharSequence(result))
+            get
             {
-                if (MoveToNextState())
+                var result = BuildCurrentCombination();
+
+                if (HasMaxSingeCharSequence(result))
                 {
-                    result = BuildCurrentCombination();
+                    if (MoveNext())
+                    {
+                        result = BuildCurrentCombination();
+                    }
+                    else
+                    {
+                        throw new Exception("There are no more combination.");
+                    }
                 }
                 else
                 {
-                    throw new Exception("There are no more combination.");
+                    return result.ToString();
                 }
-            }
-            else
-            {
-                return result;
-            }
 
-            return result;
+                return result.ToString();
+            }
         }
 
-        public bool MoveToNextState()
+        public bool MoveNext()
         {
             while (true)
             {
                 var moved = false;
                 for (var i = 0; i < Sections.Count; i++)
                 {
-                    if (Sections[i].MoveToNextState())
+                    if (Sections[i].MoveNext())
                     {
                         moved = true;
                         break;
@@ -124,6 +131,12 @@ namespace Lib.PasswordPattern
                 }
             }
         }
+
+        public void Dispose()
+        {
+        }
+
+        object IEnumerator.Current => Current;
 
         private bool HasMaxSingeCharSequence(StringBuilder b)
         {
@@ -148,11 +161,11 @@ namespace Lib.PasswordPattern
             return false;
         }
 
-        public void ResetState()
+        public void Reset()
         {
             for (var i = 0; i < Sections.Count; i++)
             {
-                Sections[i].ResetState();
+                Sections[i].Reset();
             }
         }
 
@@ -162,7 +175,7 @@ namespace Lib.PasswordPattern
 
             for (var i = 0; i < Sections.Count; i++)
             {
-                result.Append(Sections[i].GetCurrentCombination());
+                result.Append(Sections[i].Current);
             }
 
             return result;

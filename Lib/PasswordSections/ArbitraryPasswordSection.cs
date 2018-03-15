@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Text;
 using Lib.CharsetGenerators;
 using Lib.CharMappers;
@@ -22,7 +24,7 @@ namespace Lib.PasswordSections
 
             BuildGenerator();
             BuildChars();
-            ResetState();
+            Reset();
         }
 
         public int MaxLength { get; }
@@ -39,29 +41,35 @@ namespace Lib.PasswordSections
 
         public CharCase CharCase { get; set; }
 
-        public ulong GetCombinationCount()
+        public ulong Count
         {
-            ulong result = 0;
-            for (int i = MinLength; i <= MaxLength; i++)
+            get
             {
-                result += (ulong)Math.Pow(Size, i);
+                ulong result = 0;
+                for (int i = MinLength; i <= MaxLength; i++)
+                {
+                    result += (ulong) Math.Pow(Size, i);
+                }
+                return result;
             }
-            return result;
         }
 
-        public StringBuilder GetCurrentCombination()
+        public string Current
         {
-            var result = new StringBuilder(_currentLength);
-
-            for (uint i = 0; i < _currentLength; i++)
+            get
             {
-                result.Append(Chars[_permutationState[i]]);
-            }
+                var result = new StringBuilder(_currentLength);
 
-            return result;
+                for (uint i = 0; i < _currentLength; i++)
+                {
+                    result.Append(Chars[_permutationState[i]]);
+                }
+
+                return result.ToString();
+            }
         }
 
-        public bool MoveToNextState()
+        public bool MoveNext()
         {
             for (var i = 0; i < _currentLength; i++)
             {
@@ -83,11 +91,26 @@ namespace Lib.PasswordSections
             return false;
         }
 
-        public void ResetState()
+        public void Reset()
         {
             _currentLength = MinLength;
             _permutationState = new int[_currentLength];
         }
+
+        public IEnumerable<string> GetVariations()
+        {
+            do
+            {
+                yield return Current;
+
+            } while (MoveNext());
+        }
+
+        public void Dispose()
+        {
+        }
+
+        object IEnumerator.Current => Current;
 
         private void BuildChars()
         {
