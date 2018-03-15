@@ -8,30 +8,29 @@ namespace Cli
 {
     internal class Program
     {
-        private static string defaultFilename = "passwords.txt";
+        private const string PasswordFileExtension = "pwd";
 
         static void Main(string[] args)
         {
             var loader = new YamlParamLoader();
-            var patternParams = loader.Load(args[0]);
-
-            patternParams.OutputFilename = patternParams.OutputFilename?.Trim();
-            if (string.IsNullOrEmpty(patternParams.OutputFilename))
-            {
-                patternParams.OutputFilename = defaultFilename;
-            }
+            var paramFilename = args[0];
+            var outputFilename = Path.Combine(
+                Path.GetDirectoryName(paramFilename),
+                $"{Path.GetFileNameWithoutExtension(paramFilename)}.{PasswordFileExtension}"
+            );
+            var patternParams = loader.Load(paramFilename);
 
             var passwordPattern = CreatePasswordPatternFromParams(patternParams);
 
             Console.WriteLine("Max variations number: {0:N0}", passwordPattern.Count);
-            Console.WriteLine($"Generate variations and save them into the file {patternParams.OutputFilename}? (y/n)");
+            Console.WriteLine($"Generate variations and save them into the file {outputFilename}? (y/n)");
             if (Console.ReadLine()?.ToLower() == "n")
             {
                 Console.WriteLine("Canceled");
                 return;
             }
             
-            using (var fileStream = new FileStream(patternParams.OutputFilename, FileMode.Create))
+            using (var fileStream = new FileStream(outputFilename, FileMode.Create))
             using (var writer = new StreamWriter(fileStream))
             {
                 foreach (var combination in passwordPattern.GetVariations())
