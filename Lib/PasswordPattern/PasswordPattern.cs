@@ -41,7 +41,7 @@ namespace Lib.PasswordPattern
 
                 for (var i = 0; i < Sections.Count; i++)
                 {
-                    result += Sections[0].MinLength;
+                    result += Sections[i].MinLength;
                 }
 
                 return result;
@@ -114,6 +114,7 @@ namespace Lib.PasswordPattern
                         moved = true;
                         break;
                     }
+                    Sections[i].Reset();
                 }
 
                 if (moved)
