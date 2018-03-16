@@ -42,6 +42,15 @@ namespace Lib.PasswordPattern
             return this;
         }
 
+        public PasswordPatternBuilder AddNumberRangePasswordSection(
+            int minValue,
+            int maxValue,
+            int? step = null)
+        {
+            _sections.Add(new NumberRangePasswordSection(minValue, maxValue, step));
+            return this;
+        }
+
         public PasswordPatternBuilder AddArbitraryPasswordSection(
             string chars,
             int maxLength,

@@ -31,10 +31,13 @@ namespace Cli.Yaml
             {
                 parser.MoveNext();
                 var sectionName = GetScalarValue(parser);
-                switch (sectionName)
+                switch (sectionName.ToUpper())
                 {
-                    case "fixed":
+                    case "FIXED":
                         result = sectionDeserializer.Deserialize<FixedSectionParams>(parser);
+                        break;
+                    case "NUMBERRANGE":
+                        result = sectionDeserializer.Deserialize<NumberRangeSectionParams>(parser);
                         break;
                     default:
                         result = sectionDeserializer.Deserialize<ArbitrarySectionParams>(parser);

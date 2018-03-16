@@ -184,5 +184,22 @@ namespace Test
             expected.AppendLine("VF");
             Assert.Equal(expected.ToString(), actual);
         }
+
+        [Fact]
+        public void NrsStringTest()
+        {
+            var passwordPattern = new PasswordPatternBuilder(mapper: new RussianToEnglishMapper())
+                .AddNumberRangePasswordSection(-2, 2)
+                .Build();
+
+            var actual = passwordPattern.GetVariationsString();
+            var expected = new StringBuilder();
+            expected.AppendLine("-2");
+            expected.AppendLine("-1");
+            expected.AppendLine("0");
+            expected.AppendLine("1");
+            expected.AppendLine("2");
+            Assert.Equal(expected.ToString(), actual);
+        }
     }
 }

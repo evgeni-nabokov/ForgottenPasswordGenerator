@@ -79,6 +79,15 @@ namespace Cli
                         p.CharCase
                     );
                 }
+                else if (sectionParams is NumberRangeSectionParams)
+                {
+                    var p = sectionParams as NumberRangeSectionParams;
+                    passwordPatternBuilder.AddNumberRangePasswordSection(
+                        p.MinValue,
+                        p.MaxValue,
+                        p.Step
+                    );
+                }
                 else if (sectionParams is ArbitrarySectionParams)
                 {
                     var p = sectionParams as ArbitrarySectionParams;
