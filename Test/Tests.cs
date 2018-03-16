@@ -120,5 +120,39 @@ namespace Test
 
             Assert.Equal(expected, actual);
         }
+
+        [Fact]
+        public void FpsMaxCapitalLetterSequenceLengthStringTest()
+        {
+            var passwordPattern = new PasswordPatternBuilder(null, 1)
+                .AddFixedPasswordSection("abc", 3, CharCase.UpperAndLower)
+                .Build();
+
+            var actual = passwordPattern.GetVariationsString();
+            var expected = new StringBuilder();
+            expected.AppendLine("abc");
+            expected.AppendLine("Abc");
+            expected.AppendLine("aBc");
+            expected.AppendLine("abC");
+            expected.AppendLine("AbC");
+            Assert.Equal(expected.ToString(), actual);
+        }
+
+        [Fact]
+        public void FpsMinCapitalLetterDistanceStringTest()
+        {
+            var passwordPattern = new PasswordPatternBuilder(null, null, 1)
+                .AddFixedPasswordSection("abc", 3, CharCase.UpperAndLower)
+                .Build();
+
+            var actual = passwordPattern.GetVariationsString();
+            var expected = new StringBuilder();
+            expected.AppendLine("abc");
+            expected.AppendLine("Abc");
+            expected.AppendLine("aBc");
+            expected.AppendLine("abC");
+            expected.AppendLine("AbC");
+            Assert.Equal(expected.ToString(), actual);
+        }
     }
 }

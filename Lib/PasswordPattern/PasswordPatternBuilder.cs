@@ -8,13 +8,20 @@ namespace Lib.PasswordPattern
     public class PasswordPatternBuilder
     {
         private readonly IList<IPasswordSection> _sections;
-        private readonly int? _maxSingeCharSequence;
-        
+        private readonly int? _maxSingeCharSequenceLength;
+        private readonly int? _maxCapitalLetterSequenceLength;
+        private readonly int? _minCapitalLetterDistance;
 
-        public PasswordPatternBuilder(int? maxSingeCharSequence = null)
+
+        public PasswordPatternBuilder(
+            int? maxSingeCharSequenceLength = null,
+            int? maxCapitalLetterSequenceLength = null,
+            int? minCapitalLetterDistance = null)
         {
             _sections = new List<IPasswordSection>(4);
-            _maxSingeCharSequence = maxSingeCharSequence;
+            _maxSingeCharSequenceLength = maxSingeCharSequenceLength;
+            _maxCapitalLetterSequenceLength = maxCapitalLetterSequenceLength;
+            _minCapitalLetterDistance = minCapitalLetterDistance;
         }
 
         public PasswordPatternBuilder AddSection(IPasswordSection section)
@@ -46,7 +53,12 @@ namespace Lib.PasswordPattern
 
         public PasswordPattern Build()
         {
-            return new PasswordPattern(_sections, _maxSingeCharSequence);
+            return new PasswordPattern(
+                _sections,
+                _maxSingeCharSequenceLength,
+                _maxCapitalLetterSequenceLength,
+                _minCapitalLetterDistance
+            );
         }
     }
 }

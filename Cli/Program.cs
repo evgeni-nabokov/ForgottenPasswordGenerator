@@ -45,7 +45,9 @@ namespace Cli
         private static PasswordPattern CreatePasswordPatternFromParams(PatternParams patternParams)
         {
             var passwordPatternBuilder = new PasswordPatternBuilder(
-                patternParams.MaxSingeCharSequenceLength
+                patternParams.MaxSingeCharSequenceLength,
+                patternParams.MaxCapitalLetterSequenceLength,
+                patternParams.MinCapitalCharDistance
             );
 
             for (var i = 0; i < patternParams.Sections.Length; i++)

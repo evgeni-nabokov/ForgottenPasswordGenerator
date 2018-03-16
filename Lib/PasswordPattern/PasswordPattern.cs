@@ -8,15 +8,50 @@ namespace Lib.PasswordPattern
 {
     public class PasswordPattern : IPasswordSection
     {
-        public PasswordPattern(IEnumerable<IPasswordSection> sections, int? maxSingeCharSequenceLength = null)
+        public PasswordPattern(
+            IEnumerable<IPasswordSection> sections,
+            int? maxSingeCharSequenceLength = null,
+            int? maxCapitalLetterSequenceLength = null,
+            int? minCapitalLetterDistance = null)
         {
             Sections = new List<IPasswordSection>(sections);
+            Checkers = new List<Func<StringBuilder, bool>>(3);
+
             MaxSingeCharSequenceLength = maxSingeCharSequenceLength < 1 ? null : maxSingeCharSequenceLength;
+            if (MaxSingeCharSequenceLength.HasValue)
+            {
+                Checkers.Add(BreaksMaxSingeCharSequence);
+            }
+
+            MaxCapitalLetterSequenceLength = maxCapitalLetterSequenceLength < 1 ? null : maxCapitalLetterSequenceLength;
+            if (MaxCapitalLetterSequenceLength.HasValue)
+            {
+                Checkers.Add(BreaksMaxCapitalLetterSequenceLength);
+            }
+
+            MinCapitalLetterDistance = minCapitalLetterDistance < 1 ? null : minCapitalLetterDistance;
+            if (MinCapitalLetterDistance.HasValue)
+            {
+                Checkers.Add(BreaksMinCapitalLetterDistance);
+            }
+
+            if (Checkers.Count > 0)
+            {
+                _breaksRestrictions = BreaksAnyRestriction;
+            }
+
+            Init();
         }
+
+        private IList<Func<StringBuilder, bool>> Checkers { get; }
 
         public IReadOnlyList<IPasswordSection> Sections { get; }
 
         public int? MaxSingeCharSequenceLength { get; }
+
+        public int? MaxCapitalLetterSequenceLength { get; }
+
+        public int? MinCapitalLetterDistance { get; }
 
         public int MaxLength
         {
@@ -76,31 +111,7 @@ namespace Lib.PasswordPattern
             } while (MoveNext());
         }
 
-        public string Current
-        {
-            get
-            {
-                var result = BuildCurrentCombination();
-
-                if (HasMaxSingeCharSequence(result))
-                {
-                    if (MoveNext())
-                    {
-                        result = BuildCurrentCombination();
-                    }
-                    else
-                    {
-                        throw new Exception("There are no more combination.");
-                    }
-                }
-                else
-                {
-                    return result.ToString();
-                }
-
-                return result.ToString();
-            }
-        }
+        public string Current => BuildCurrent().ToString();
 
         public bool MoveNext()
         {
@@ -119,9 +130,7 @@ namespace Lib.PasswordPattern
 
                 if (moved)
                 {
-                    var combination = BuildCurrentCombination();
-
-                    if (!HasMaxSingeCharSequence(combination))
+                    if (!_breaksRestrictions(BuildCurrent()))
                     {
                         return true;
                     }
@@ -139,14 +148,62 @@ namespace Lib.PasswordPattern
 
         object IEnumerator.Current => Current;
 
-        private bool HasMaxSingeCharSequence(StringBuilder b)
+        public void Reset()
         {
-            if (!MaxSingeCharSequenceLength.HasValue) return false;
-
-            var seqLength = 1;
-            for (int i = 1; i < b.Length; i++)
+            for (var i = 0; i < Sections.Count; i++)
             {
-                if (b[i - 1] == b[i])
+                Sections[i].Reset();
+            }
+        }
+
+        private void Init()
+        {
+            var current = BuildCurrent();
+
+            if (_breaksRestrictions(current))
+            {
+                if (!MoveNext())
+                {
+                    throw new Exception("There are no combinations.");
+                }
+            }
+        }
+
+        private StringBuilder BuildCurrent()
+        {
+            var result = new StringBuilder(MaxLength);
+
+            for (var i = 0; i < Sections.Count; i++)
+            {
+                result.Append(Sections[i].Current);
+            }
+
+            return result;
+        }
+
+
+        #region Checkers
+
+        private readonly Func<StringBuilder, bool> _breaksRestrictions = variation => false;
+
+        private bool BreaksAnyRestriction(StringBuilder variation)
+        {
+            for (var i = 0; i < Checkers.Count; i++)
+            {
+                if (Checkers[i](variation))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private bool BreaksMaxSingeCharSequence(StringBuilder variation)
+        {
+            var seqLength = 1;
+            for (var i = 1; i < variation.Length; i++)
+            {
+                if (variation[i - 1] == variation[i])
                 {
                     seqLength++;
                     if (seqLength > MaxSingeCharSequenceLength)
@@ -162,26 +219,51 @@ namespace Lib.PasswordPattern
             return false;
         }
 
-        public void Reset()
+        private bool BreaksMaxCapitalLetterSequenceLength(StringBuilder variation)
         {
-            for (var i = 0; i < Sections.Count; i++)
+            var seqLength = 0;
+            for (var i = 0; i < variation.Length; i++)
             {
-                Sections[i].Reset();
+                if (char.IsUpper(variation[i]))
+                {
+                    seqLength++;
+                    if (seqLength > MaxCapitalLetterSequenceLength)
+                    {
+                        return true;
+                    }
+                }
+                else
+                {
+                    seqLength = 0;
+                }
             }
+            return false;
         }
 
-        private StringBuilder BuildCurrentCombination()
+        private bool BreaksMinCapitalLetterDistance(StringBuilder variation)
         {
-            var result = new StringBuilder(MaxLength);
-
-            for (var i = 0; i < Sections.Count; i++)
+            var startIndex = -1;
+            for (var i = 0; i < variation.Length; i++)
             {
-                result.Append(Sections[i].Current);
+                if (char.IsUpper(variation[i]))
+                {
+                    if (startIndex < 0)
+                    {
+                        startIndex = i;
+                    }
+                    else
+                    {
+                        if (i - startIndex - 1 < MinCapitalLetterDistance)
+                        {
+                            return true;
+                        }
+                        startIndex = i;
+                    }
+                }
             }
-
-            return result;
+            return false;
         }
+
+        #endregion
     }
-
-    
 }
