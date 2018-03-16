@@ -9,20 +9,28 @@ namespace Cli
     internal class Program
     {
         private const string PasswordFileExtension = "pwd";
+        private const string StatisticsFileExtension = "stat";
 
         static void Main(string[] args)
         {
             var loader = new YamlParamLoader();
             var paramFilename = args[0];
+            var filenameWithoutExtension = Path.GetFileNameWithoutExtension(paramFilename);
+            var directoryName = Path.GetDirectoryName(paramFilename);
             var outputFilename = Path.Combine(
-                Path.GetDirectoryName(paramFilename),
-                $"{Path.GetFileNameWithoutExtension(paramFilename)}.{PasswordFileExtension}"
+                directoryName,
+                $"{filenameWithoutExtension}.{PasswordFileExtension}"
             );
+            var statisticsFilename = Path.Combine(
+                directoryName,
+                $"{filenameWithoutExtension}.{StatisticsFileExtension}"
+            );
+
             var patternParams = loader.Load(paramFilename);
 
             var passwordPattern = CreatePasswordPatternFromParams(patternParams);
 
-            Console.WriteLine("Max variations number: {0:N0}", passwordPattern.Count);
+            Console.WriteLine($"Rounds: {passwordPattern.Count:N0}");
             Console.WriteLine($"Generate variations and save them into the file {outputFilename}? (y/n)");
             if (Console.ReadLine()?.ToLower() != "y")
             {
@@ -39,7 +47,15 @@ namespace Cli
                 }
             }
 
-            Console.WriteLine($"{passwordPattern.VariationNumber:N} variation(s) saved.");
+            using (var fileStream = new FileStream(statisticsFilename, FileMode.Create))
+            using (var writer = new StreamWriter(fileStream))
+            {
+                writer.WriteLine(passwordPattern.VariationNumber);
+            }
+            
+            Console.WriteLine($"{passwordPattern.VariationNumber:N0} variations saved into {outputFilename}.");
+            Console.WriteLine($"Statistics saved into {statisticsFilename}.");
+            Console.ReadKey();
         }
 
         private static PasswordPattern CreatePasswordPatternFromParams(PatternParams patternParams)
