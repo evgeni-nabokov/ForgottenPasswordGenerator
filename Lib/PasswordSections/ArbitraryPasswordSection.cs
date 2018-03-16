@@ -13,14 +13,12 @@ namespace Lib.PasswordSections
             string chars,
             int maxLength,
             int? minLength = null,
-            CharCase charCase = CharCase.AsDefined,
-            ICharMapper mapper = null)
+            CharCase charCase = CharCase.AsDefined)
         {
             OriginalChars = chars;
             MaxLength = maxLength < 1 ? 1 : maxLength;
             MinLength = NormalizeMinLength(minLength);
             CharCase = charCase;
-            CharMapper = mapper;
 
             BuildGenerator();
             BuildChars();
@@ -32,8 +30,6 @@ namespace Lib.PasswordSections
         public int MinLength { get; }
 
         public int Size => Chars.Length;
-
-        public ICharMapper CharMapper { get; }
 
         public string Chars { get; private set; }
 
@@ -132,11 +128,6 @@ namespace Lib.PasswordSections
                 case CharCase.UpperAndLower:
                     builder.AddUpperAndLowerCaseGenerator();
                     break;
-            }
-
-            if (CharMapper != null)
-            {
-                builder.AddLetterMapperGenerator(CharMapper);
             }
 
             builder.AddUniquenessCharGenerator();

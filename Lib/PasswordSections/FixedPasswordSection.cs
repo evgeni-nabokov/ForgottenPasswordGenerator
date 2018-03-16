@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-using Lib.CharMappers;
 
 namespace Lib.PasswordSections
 {
@@ -11,13 +10,12 @@ namespace Lib.PasswordSections
         public FixedPasswordSection(
             string chars,
             int? minLength = null,
-            CharCase charCase = CharCase.AsDefined,
-            ICharMapper mapper = null)
+            CharCase charCase = CharCase.AsDefined)
         {
             OriginalChars = chars;
             MinLength = NormalizeMinLength(minLength);
             CharCase = charCase;
-            CharMapper = mapper;
+
             BuildChars();
         }
 
@@ -28,8 +26,6 @@ namespace Lib.PasswordSections
         public string OriginalChars { get; }
 
         public CharCase CharCase { get; }
-
-        public ICharMapper CharMapper { get; }
 
         public ulong Count
         {
@@ -145,20 +141,6 @@ namespace Lib.PasswordSections
                     _chars[placeIndex] = new[] { c };
                 }
                 placeIndex++;
-            }
-
-            if (CharMapper != null)
-            {
-                for (var i = 0; i < _chars.Length; i++)
-                {
-                    for (var j = 0; j < _chars[i].Length; j++)
-                    {
-                        if (CharMapper.TryGetLetter(_chars[i][j], out var convertedChar))
-                        {
-                            _chars[i][j] = convertedChar;
-                        }
-                    }
-                }
             }
         }
 

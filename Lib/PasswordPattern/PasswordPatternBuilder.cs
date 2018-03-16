@@ -11,17 +11,20 @@ namespace Lib.PasswordPattern
         private readonly int? _maxSingeCharSequenceLength;
         private readonly int? _maxCapitalLetterSequenceLength;
         private readonly int? _minCapitalLetterDistance;
+        private readonly ICharMapper _mapper;
 
 
         public PasswordPatternBuilder(
             int? maxSingeCharSequenceLength = null,
             int? maxCapitalLetterSequenceLength = null,
-            int? minCapitalLetterDistance = null)
+            int? minCapitalLetterDistance = null,
+            ICharMapper mapper = null)
         {
             _sections = new List<IPasswordSection>(4);
             _maxSingeCharSequenceLength = maxSingeCharSequenceLength;
             _maxCapitalLetterSequenceLength = maxCapitalLetterSequenceLength;
             _minCapitalLetterDistance = minCapitalLetterDistance;
+            _mapper = mapper;
         }
 
         public PasswordPatternBuilder AddSection(IPasswordSection section)
@@ -33,10 +36,9 @@ namespace Lib.PasswordPattern
         public PasswordPatternBuilder AddFixedPasswordSection(
             string chars,
             int? minLength = null,
-            CharCase charCase = CharCase.AsDefined,
-            ICharMapper mapper = null)
+            CharCase charCase = CharCase.AsDefined)
         {
-            _sections.Add(new FixedPasswordSection(chars, minLength, charCase, mapper));
+            _sections.Add(new FixedPasswordSection(chars, minLength, charCase));
             return this;
         }
 
@@ -44,10 +46,9 @@ namespace Lib.PasswordPattern
             string chars,
             int maxLength,
             int? minLength = null,
-            CharCase charCase = CharCase.AsDefined,
-            ICharMapper mapper = null)
+            CharCase charCase = CharCase.AsDefined)
         {
-            _sections.Add(new ArbitraryPasswordSection(chars, maxLength, minLength, charCase, mapper));
+            _sections.Add(new ArbitraryPasswordSection(chars, maxLength, minLength, charCase));
             return this;
         }
 
@@ -57,7 +58,8 @@ namespace Lib.PasswordPattern
                 _sections,
                 _maxSingeCharSequenceLength,
                 _maxCapitalLetterSequenceLength,
-                _minCapitalLetterDistance
+                _minCapitalLetterDistance,
+                _mapper
             );
         }
     }

@@ -154,5 +154,21 @@ namespace Test
             expected.AppendLine("AbC");
             Assert.Equal(expected.ToString(), actual);
         }
+
+        [Fact]
+        public void FpsCharsetMapperStringTest()
+        {
+            var passwordPattern = new PasswordPatternBuilder(mapper: new RussianToEnglishMapper())
+                .AddFixedPasswordSection("ма", 2, CharCase.UpperAndLower)
+                .Build();
+
+            var actual = passwordPattern.GetVariationsString();
+            var expected = new StringBuilder();
+            expected.AppendLine("vf");
+            expected.AppendLine("Vf");
+            expected.AppendLine("vF");
+            expected.AppendLine("VF");
+            Assert.Equal(expected.ToString(), actual);
+        }
     }
 }

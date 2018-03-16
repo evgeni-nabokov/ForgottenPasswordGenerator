@@ -47,7 +47,8 @@ namespace Cli
             var passwordPatternBuilder = new PasswordPatternBuilder(
                 patternParams.MaxSingeCharSequenceLength,
                 patternParams.MaxCapitalLetterSequenceLength,
-                patternParams.MinCapitalCharDistance
+                patternParams.MinCapitalCharDistance,
+                CharMapperFactory.CreateCharMapper(patternParams.CharMapper)
             );
 
             for (var i = 0; i < patternParams.Sections.Length; i++)
@@ -59,8 +60,8 @@ namespace Cli
                     passwordPatternBuilder.AddFixedPasswordSection(
                         p.Chars,
                         p.MinLength,
-                        p.CharCase,
-                        CharMapperFactory.CreateCharMapper(p.CharMapper));
+                        p.CharCase
+                    );
                 }
                 else if (sectionParams is ArbitrarySectionParams)
                 {
@@ -69,8 +70,8 @@ namespace Cli
                         p.Chars,
                         p.MaxLength,
                         p.MinLength,
-                        p.CharCase,
-                        CharMapperFactory.CreateCharMapper(p.CharMapper));
+                        p.CharCase
+                    );
                 }
             }
 

@@ -29,12 +29,6 @@ namespace Lib.CharsetGenerators
             return this;
         }
 
-        public CharsetGeneratorBuilder AddLetterMapperGenerator(ICharMapper mapper)
-        {
-            _charsetGenerator = new CharMapperCharsetGenerator(_charsetGenerator, mapper);
-            return this;
-        }
-
         public CharsetGeneratorBuilder AddUniquenessCharGenerator()
         {
             _charsetGenerator = new UniquenessCharsetGenerator(_charsetGenerator);

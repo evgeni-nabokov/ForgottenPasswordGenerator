@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using Lib.CharMappers;
 using Lib.PasswordSections;
 
 namespace Lib.PasswordPattern
@@ -12,38 +13,44 @@ namespace Lib.PasswordPattern
             IEnumerable<IPasswordSection> sections,
             int? maxSingeCharSequenceLength = null,
             int? maxCapitalLetterSequenceLength = null,
-            int? minCapitalLetterDistance = null)
+            int? minCapitalLetterDistance = null,
+            ICharMapper mapper = null)
         {
             Sections = new List<IPasswordSection>(sections);
-            Checkers = new List<Func<StringBuilder, bool>>(3);
 
             MaxSingeCharSequenceLength = maxSingeCharSequenceLength < 1 ? null : maxSingeCharSequenceLength;
             if (MaxSingeCharSequenceLength.HasValue)
             {
-                Checkers.Add(BreaksMaxSingeCharSequence);
+                _checkers.Add(BreaksMaxSingeCharSequence);
             }
 
             MaxCapitalLetterSequenceLength = maxCapitalLetterSequenceLength < 1 ? null : maxCapitalLetterSequenceLength;
             if (MaxCapitalLetterSequenceLength.HasValue)
             {
-                Checkers.Add(BreaksMaxCapitalLetterSequenceLength);
+                _checkers.Add(BreaksMaxCapitalLetterSequenceLength);
             }
 
             MinCapitalLetterDistance = minCapitalLetterDistance < 1 ? null : minCapitalLetterDistance;
             if (MinCapitalLetterDistance.HasValue)
             {
-                Checkers.Add(BreaksMinCapitalLetterDistance);
+                _checkers.Add(BreaksMinCapitalLetterDistance);
             }
 
-            if (Checkers.Count > 0)
+            if (_checkers.Count > 0)
             {
                 _breaksRestrictions = BreaksAnyRestriction;
             }
 
+            CharMapper = mapper;
+
+            if (CharMapper != null)
+            {
+                _processors.Add(MapCharacters);
+                _finalProcess = ProcessVariation;
+            }
+
             Init();
         }
-
-        private IList<Func<StringBuilder, bool>> Checkers { get; }
 
         public IReadOnlyList<IPasswordSection> Sections { get; }
 
@@ -52,6 +59,8 @@ namespace Lib.PasswordPattern
         public int? MaxCapitalLetterSequenceLength { get; }
 
         public int? MinCapitalLetterDistance { get; }
+
+        public ICharMapper CharMapper { get; }
 
         public int MaxLength
         {
@@ -111,7 +120,7 @@ namespace Lib.PasswordPattern
             } while (MoveNext());
         }
 
-        public string Current => BuildCurrent().ToString();
+        public string Current => _finalProcess(BuildCurrent()).ToString();
 
         public bool MoveNext()
         {
@@ -182,15 +191,44 @@ namespace Lib.PasswordPattern
         }
 
 
+        #region Post build processors
+
+        private readonly IList<Func<StringBuilder, StringBuilder>> _processors = new List<Func<StringBuilder, StringBuilder>>(1);
+        private readonly Func<StringBuilder, StringBuilder> _finalProcess = variation => variation;
+
+        private StringBuilder ProcessVariation(StringBuilder variation)
+        {
+            for (var i = 0; i < _processors.Count; i++)
+            {
+                variation = _processors[i](variation);
+            }
+            return variation;
+        }
+
+        private StringBuilder MapCharacters(StringBuilder variation)
+        {
+            for (var i = 0; i < variation.Length; i++)
+            {
+                if (CharMapper.TryGetLetter(variation[i], out var convertedChar))
+                {
+                    variation[i] = convertedChar;
+                }
+            }
+            return variation;
+        }
+
+        #endregion
+
         #region Checkers
 
+        private readonly IList<Func<StringBuilder, bool>> _checkers = new List<Func<StringBuilder, bool>>(3);
         private readonly Func<StringBuilder, bool> _breaksRestrictions = variation => false;
 
         private bool BreaksAnyRestriction(StringBuilder variation)
         {
-            for (var i = 0; i < Checkers.Count; i++)
+            for (var i = 0; i < _checkers.Count; i++)
             {
-                if (Checkers[i](variation))
+                if (_checkers[i](variation))
                 {
                     return true;
                 }
