@@ -109,13 +109,27 @@ namespace Test
         }
 
         [Fact]
-        public void FpsVariableLengthCombinationCountTest()
+        public void FpsVariableLengthVariationCountTest()
         {
             var passwordPattern = new PasswordPatternBuilder(2)
                 .AddFixedPasswordSection("ab", 0, CharCase.UpperAndLower)
                 .Build();
 
             var actual = passwordPattern.Count;
+            var expected = 7ul;
+
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void FpsVariableLengthVariationNumberTest()
+        {
+            var passwordPattern = new PasswordPatternBuilder(2)
+                .AddFixedPasswordSection("ab", 0, CharCase.UpperAndLower)
+                .Build();
+
+            passwordPattern.GetVariationsString();
+            var actual = passwordPattern.VariationNumber;
             var expected = 7ul;
 
             Assert.Equal(expected, actual);

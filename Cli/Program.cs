@@ -24,7 +24,7 @@ namespace Cli
 
             Console.WriteLine("Max variations number: {0:N0}", passwordPattern.Count);
             Console.WriteLine($"Generate variations and save them into the file {outputFilename}? (y/n)");
-            if (Console.ReadLine()?.ToLower() == "n")
+            if (Console.ReadLine()?.ToLower() != "y")
             {
                 Console.WriteLine("Canceled");
                 return;
@@ -33,13 +33,13 @@ namespace Cli
             using (var fileStream = new FileStream(outputFilename, FileMode.Create))
             using (var writer = new StreamWriter(fileStream))
             {
-                foreach (var combination in passwordPattern.GetVariations())
+                foreach (var variation in passwordPattern.GetVariations())
                 {
-                    writer.WriteLine(combination);
+                    writer.WriteLine(variation);
                 }
             }
 
-            Console.WriteLine("Done");
+            Console.WriteLine($"{passwordPattern.VariationNumber:N} variation(s) saved.");
         }
 
         private static PasswordPattern CreatePasswordPatternFromParams(PatternParams patternParams)

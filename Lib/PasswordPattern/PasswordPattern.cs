@@ -109,6 +109,8 @@ namespace Lib.PasswordPattern
             }
         }
 
+        public ulong VariationNumber { get; private set; }
+        
         public IEnumerable<string> GetVariations()
         {
             if (Sections == null || Sections.Count == 0) yield break;
@@ -141,6 +143,7 @@ namespace Lib.PasswordPattern
                 {
                     if (!_breaksRestrictions(BuildCurrent()))
                     {
+                        VariationNumber++;
                         return true;
                     }
                 }
@@ -163,6 +166,7 @@ namespace Lib.PasswordPattern
             {
                 Sections[i].Reset();
             }
+            Init();
         }
 
         private void Init()
@@ -176,6 +180,8 @@ namespace Lib.PasswordPattern
                     throw new Exception("There are no combinations.");
                 }
             }
+
+            VariationNumber = 1;
         }
 
         private StringBuilder BuildCurrent()
