@@ -36,6 +36,10 @@ namespace Cli.Yaml
                     case "FIXED":
                         result = sectionDeserializer.Deserialize<FixedSectionParams>(parser);
                         break;
+                    case "STRINGLIST":
+                        var stringList = sectionDeserializer.Deserialize<string[]>(parser);
+                        result = new StringListSectionParams { StringList = stringList };
+                        break;
                     case "NUMBERRANGE":
                         result = sectionDeserializer.Deserialize<NumberRangeSectionParams>(parser);
                         break;

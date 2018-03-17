@@ -1,6 +1,4 @@
-﻿using Lib;
-
-namespace Cli.Params
+﻿namespace Cli.Params
 {
     public abstract class SectionParamsBase
     {

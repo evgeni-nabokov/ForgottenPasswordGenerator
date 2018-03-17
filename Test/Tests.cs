@@ -186,7 +186,7 @@ namespace Test
         }
 
         [Fact]
-        public void NrsStringTest()
+        public void NrpsStringTest()
         {
             var passwordPattern = new PasswordPatternBuilder(mapper: new RussianToEnglishMapper())
                 .AddNumberRangePasswordSection(-2, 2)
@@ -199,6 +199,21 @@ namespace Test
             expected.AppendLine("0");
             expected.AppendLine("1");
             expected.AppendLine("2");
+            Assert.Equal(expected.ToString(), actual);
+        }
+
+        [Fact]
+        public void SlpsStringTest()
+        {
+            var passwordPattern = new PasswordPatternBuilder(mapper: new RussianToEnglishMapper())
+                .AddStringListPasswordSection(new []{ "cat", "dog", "mouse" })
+                .Build();
+
+            var actual = passwordPattern.GetVariationsString();
+            var expected = new StringBuilder();
+            expected.AppendLine("cat");
+            expected.AppendLine("dog");
+            expected.AppendLine("mouse");
             Assert.Equal(expected.ToString(), actual);
         }
     }

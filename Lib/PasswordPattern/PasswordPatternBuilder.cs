@@ -42,6 +42,13 @@ namespace Lib.PasswordPattern
             return this;
         }
 
+        public PasswordPatternBuilder AddStringListPasswordSection(
+            string[] stringList)
+        {
+            _sections.Add(new StringListPasswordSection(stringList));
+            return this;
+        }
+
         public PasswordPatternBuilder AddNumberRangePasswordSection(
             int minValue,
             int maxValue,

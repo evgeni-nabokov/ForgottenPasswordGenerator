@@ -79,6 +79,13 @@ namespace Cli
                         p.CharCase
                     );
                 }
+                else if (sectionParams is StringListSectionParams)
+                {
+                    var p = sectionParams as StringListSectionParams;
+                    passwordPatternBuilder.AddStringListPasswordSection(
+                        p.StringList
+                    );
+                }
                 else if (sectionParams is NumberRangeSectionParams)
                 {
                     var p = sectionParams as NumberRangeSectionParams;
