@@ -10,6 +10,7 @@ namespace Cli
     {
         private const string PasswordFileExtension = "pwd";
         private const string StatisticsFileExtension = "stat";
+        private const ulong ChunkSize = 100_000;
 
         static void Main(string[] args)
         {
@@ -29,23 +30,41 @@ namespace Cli
             var patternParams = loader.Load(paramFilename);
 
             var passwordPattern = CreatePasswordPatternFromParams(patternParams);
-
-            Console.WriteLine($"Rounds: {passwordPattern.Count:N0}");
+            var totalCount = passwordPattern.Count;
+            Console.WriteLine($"Total loops count: {totalCount:N0}");
             Console.WriteLine($"Generate variations and save them into the file {outputFilename}? (y/n)");
             if (Console.ReadLine()?.ToLower() != "y")
             {
                 Console.WriteLine("Canceled");
                 return;
             }
-            
+
+            var madeCount = 0ul;
+            var counter = 0ul;
             using (var fileStream = new FileStream(outputFilename, FileMode.Create))
             using (var writer = new StreamWriter(fileStream))
             {
-                foreach (var variation in passwordPattern.GetVariations())
+                do
                 {
-                    writer.WriteLine(variation);
-                }
+                    writer.WriteLine(passwordPattern.Current);
+                    counter++;
+                    if (counter >= ChunkSize)
+                    {
+                        madeCount += counter;
+                        counter = 0;
+                        PrintProgress(madeCount, totalCount);
+                        Console.CursorLeft = 0;
+                    }
+                } while (passwordPattern.MoveNext());
             }
+
+            if (counter > 0)
+            {
+                madeCount += counter;
+                PrintProgress(madeCount, totalCount);
+            }
+            
+            Console.WriteLine();
 
             using (var fileStream = new FileStream(statisticsFilename, FileMode.Create))
             using (var writer = new StreamWriter(fileStream))
@@ -56,6 +75,11 @@ namespace Cli
             Console.WriteLine($"{passwordPattern.VariationNumber:N0} variations saved into {outputFilename}.");
             Console.WriteLine($"Statistics saved into {statisticsFilename}.");
             Console.ReadKey();
+        }
+
+        private static void PrintProgress(ulong madeCount, ulong totalCount)
+        {
+            Console.Write("Progress: {0:N0} of {1:N0} ({2:N0}%)", madeCount, totalCount, (double)madeCount / totalCount * 100);
         }
 
         private static PasswordPattern CreatePasswordPatternFromParams(PatternParams patternParams)

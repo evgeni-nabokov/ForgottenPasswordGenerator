@@ -124,6 +124,8 @@ namespace Lib.PasswordPattern
 
         public string Current => _finalProcess(BuildCurrent()).ToString();
 
+        public ulong CurrentLoop { get; private set; }
+
         public bool MoveNext()
         {
             while (true)
@@ -141,6 +143,7 @@ namespace Lib.PasswordPattern
 
                 if (moved)
                 {
+                    CurrentLoop++;
                     if (!_breaksRestrictions(BuildCurrent()))
                     {
                         VariationNumber++;
