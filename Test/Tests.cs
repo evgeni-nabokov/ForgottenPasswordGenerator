@@ -169,26 +169,11 @@ namespace Test
             Assert.Equal(expected.ToString(), actual);
         }
 
-        [Fact]
-        public void FpsCharsetMapperStringTest()
-        {
-            var passwordPattern = new PasswordPatternBuilder(mapper: new RussianToEnglishMapper())
-                .AddFixedPasswordSection("ìà", 2, CharCase.UpperAndLower)
-                .Build();
-
-            var actual = passwordPattern.GetVariationsString();
-            var expected = new StringBuilder();
-            expected.AppendLine("vf");
-            expected.AppendLine("Vf");
-            expected.AppendLine("vF");
-            expected.AppendLine("VF");
-            Assert.Equal(expected.ToString(), actual);
-        }
-
+       
         [Fact]
         public void NrpsStringTest()
         {
-            var passwordPattern = new PasswordPatternBuilder(mapper: new RussianToEnglishMapper())
+            var passwordPattern = new PasswordPatternBuilder()
                 .AddNumberRangePasswordSection(-2, 2)
                 .Build();
 
@@ -205,7 +190,7 @@ namespace Test
         [Fact]
         public void SlpsStringTest()
         {
-            var passwordPattern = new PasswordPatternBuilder(mapper: new RussianToEnglishMapper())
+            var passwordPattern = new PasswordPatternBuilder()
                 .AddStringListPasswordSection(new []{ "cat", "dog", "mouse" })
                 .Build();
 
@@ -214,6 +199,19 @@ namespace Test
             expected.AppendLine("cat");
             expected.AppendLine("dog");
             expected.AppendLine("mouse");
+            Assert.Equal(expected.ToString(), actual);
+        }
+
+        [Fact]
+        public void FpsRussianCharMapperStringTest()
+        {
+            var passwordPattern = new PasswordPatternBuilder(mapper: new RussianToEnglishMapper())
+                .AddFixedPasswordSection("éöóêåíãøùçõúôûâàïğîëäæıÿ÷ñìèòüáş¸ÉÖÓÊÅÍÃØÙÇÕÚÔÛÂÀÏĞÎËÄÆİß×ÑÌÈÒÜÁŞ¨")
+                .Build();
+
+            var actual = passwordPattern.GetVariationsString();
+            var expected = new StringBuilder();
+            expected.AppendLine("qwertyuiop[]asdfghjkl;'zxcvbnm,.`QWERTYUIOP{}ASDFGHJKL:\"ZXCVBNM<>~");
             Assert.Equal(expected.ToString(), actual);
         }
     }
