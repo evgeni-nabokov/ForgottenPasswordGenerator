@@ -129,7 +129,7 @@ namespace Test
                 .Build();
 
             passwordPattern.GetVariationsString();
-            var actual = passwordPattern.VariationNumber;
+            var actual = passwordPattern.CurrentNumber;
             var expected = 7ul;
 
             Assert.Equal(expected, actual);

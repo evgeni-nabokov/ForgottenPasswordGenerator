@@ -10,7 +10,7 @@ namespace Cli
     {
         private const string PasswordFileExtension = "pwd";
         private const string StatisticsFileExtension = "stat";
-        private const ulong ChunkSize = 100_000;
+        private const ulong ChunkSize = 1_000_000;
 
         static void Main(string[] args)
         {
@@ -31,7 +31,7 @@ namespace Cli
 
             var passwordPattern = CreatePasswordPatternFromParams(patternParams);
             var totalCount = passwordPattern.Count;
-            Console.WriteLine($"Total loops count: {totalCount:N0}");
+            Console.WriteLine($"Loops total: {totalCount:N0}");
             Console.WriteLine($"Generate variations and save them into the file {outputFilename}? (y/n)");
             if (Console.ReadLine()?.ToLower() != "y")
             {
@@ -39,29 +39,32 @@ namespace Cli
                 return;
             }
 
-            var madeCount = 0ul;
-            var counter = 0ul;
+            var runningTotal = 0ul;
+            ulong loopDiff;
+            var lastLoopNumber = 0ul;
             using (var fileStream = new FileStream(outputFilename, FileMode.Create))
             using (var writer = new StreamWriter(fileStream))
             {
                 do
                 {
                     writer.WriteLine(passwordPattern.Current);
-                    counter++;
-                    if (counter >= ChunkSize)
+                    loopDiff = passwordPattern.LoopNumber - lastLoopNumber;
+
+                    if (loopDiff >= ChunkSize)
                     {
-                        madeCount += counter;
-                        counter = 0;
-                        PrintProgress(madeCount, totalCount);
+                        runningTotal += loopDiff;
+                        lastLoopNumber = passwordPattern.LoopNumber;
+                        PrintProgress(runningTotal, totalCount);
                         Console.CursorLeft = 0;
                     }
                 } while (passwordPattern.MoveNext());
             }
 
-            if (counter > 0)
+            loopDiff = passwordPattern.LoopNumber - lastLoopNumber;
+            if (loopDiff > 0)
             {
-                madeCount += counter;
-                PrintProgress(madeCount, totalCount);
+                runningTotal += loopDiff;
+                PrintProgress(runningTotal, totalCount);
             }
             
             Console.WriteLine();
@@ -69,10 +72,10 @@ namespace Cli
             using (var fileStream = new FileStream(statisticsFilename, FileMode.Create))
             using (var writer = new StreamWriter(fileStream))
             {
-                writer.WriteLine(passwordPattern.VariationNumber);
+                writer.WriteLine(passwordPattern.CurrentNumber);
             }
             
-            Console.WriteLine($"{passwordPattern.VariationNumber:N0} variations saved into {outputFilename}.");
+            Console.WriteLine($"{passwordPattern.CurrentNumber:N0} variations saved into {outputFilename}.");
             Console.WriteLine($"Statistics saved into {statisticsFilename}.");
             Console.ReadKey();
         }

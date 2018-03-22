@@ -41,8 +41,8 @@ namespace Lib.PasswordSections
         {
             get
             {
-                ulong result = 0;
-                for (int i = MinLength; i <= MaxLength; i++)
+                var result = 0ul;
+                for (var i = MinLength; i <= MaxLength; i++)
                 {
                     result += (ulong) Math.Pow(Size, i);
                 }

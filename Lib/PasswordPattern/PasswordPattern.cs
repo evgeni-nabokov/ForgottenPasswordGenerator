@@ -109,7 +109,7 @@ namespace Lib.PasswordPattern
             }
         }
 
-        public ulong VariationNumber { get; private set; }
+        public ulong CurrentNumber { get; private set; }
         
         public IEnumerable<string> GetVariations()
         {
@@ -124,7 +124,7 @@ namespace Lib.PasswordPattern
 
         public string Current => _finalProcess(BuildCurrent()).ToString();
 
-        public ulong CurrentLoop { get; private set; }
+        public ulong LoopNumber { get; private set; }
 
         public bool MoveNext()
         {
@@ -141,12 +141,13 @@ namespace Lib.PasswordPattern
                     Sections[i].Reset();
                 }
 
+
                 if (moved)
                 {
-                    CurrentLoop++;
+                    LoopNumber++;
                     if (!_breaksRestrictions(BuildCurrent()))
                     {
-                        VariationNumber++;
+                        CurrentNumber++;
                         return true;
                     }
                 }
@@ -175,6 +176,7 @@ namespace Lib.PasswordPattern
         private void Init()
         {
             var current = BuildCurrent();
+            LoopNumber = 1;
 
             if (_breaksRestrictions(current))
             {
@@ -184,7 +186,7 @@ namespace Lib.PasswordPattern
                 }
             }
 
-            VariationNumber = 1;
+            CurrentNumber = 1;
         }
 
         private StringBuilder BuildCurrent()
