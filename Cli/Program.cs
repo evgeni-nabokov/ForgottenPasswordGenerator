@@ -18,47 +18,59 @@ namespace Cli
             var paramFilename = args[0];
             var filenameWithoutExtension = Path.GetFileNameWithoutExtension(paramFilename);
             var directoryName = Path.GetDirectoryName(paramFilename);
-            var outputFilename = Path.Combine(
-                directoryName,
-                $"{filenameWithoutExtension}.{PasswordFileExtension}"
-            );
-            var statisticsFilename = Path.Combine(
-                directoryName,
-                $"{filenameWithoutExtension}.{StatisticsFileExtension}"
-            );
+            string outputFilename = string.Empty;
+
+
+            Stream outputStream = null;
+            TextWriter mainWriter;
 
             var patternParams = loader.Load(paramFilename);
 
             var passwordPattern = CreatePasswordPatternFromParams(patternParams);
             var totalCount = passwordPattern.Count;
             Console.WriteLine($"Loops total: {totalCount:N0}");
-            Console.WriteLine($"Generate variations and save them into the file {outputFilename}? (y/n)");
+
+            if (patternParams.Output == OutputStream.File)
+            {
+                outputFilename = Path.Combine(
+                    directoryName,
+                    $"{filenameWithoutExtension}.{PasswordFileExtension}"
+                );
+                outputStream = new FileStream(outputFilename, FileMode.Create);
+                mainWriter = new StreamWriter(outputStream);
+                Console.WriteLine($"Write variations into the file {outputFilename}? (y/n)");
+
+            }
+            else
+            {
+                mainWriter = Console.Out;
+                Console.WriteLine("Write variations to console? (y/n)");
+            }
+
             if (Console.ReadLine()?.ToLower() != "y")
             {
-                Console.WriteLine("Canceled");
+                Console.WriteLine("cancelled ");
                 return;
             }
 
             var runningTotal = 0ul;
             ulong loopDiff;
             var lastLoopNumber = 0ul;
-            using (var fileStream = new FileStream(outputFilename, FileMode.Create))
-            using (var writer = new StreamWriter(fileStream))
-            {
-                do
-                {
-                    writer.WriteLine(passwordPattern.Current);
-                    loopDiff = passwordPattern.LoopNumber - lastLoopNumber;
 
-                    if (loopDiff >= ChunkSize)
-                    {
-                        runningTotal += loopDiff;
-                        lastLoopNumber = passwordPattern.LoopNumber;
-                        PrintProgress(runningTotal, totalCount);
-                        Console.CursorLeft = 0;
-                    }
-                } while (passwordPattern.MoveNext());
-            }
+
+            do
+            {
+                mainWriter.WriteLine(passwordPattern.Current);
+                loopDiff = passwordPattern.LoopNumber - lastLoopNumber;
+
+                if (loopDiff >= ChunkSize)
+                {
+                    runningTotal += loopDiff;
+                    lastLoopNumber = passwordPattern.LoopNumber;
+                    PrintProgress(runningTotal, totalCount);
+                    Console.CursorLeft = 0;
+                }
+            } while (passwordPattern.MoveNext());
 
             loopDiff = passwordPattern.LoopNumber - lastLoopNumber;
             if (loopDiff > 0)
@@ -69,14 +81,28 @@ namespace Cli
             
             Console.WriteLine();
 
-            using (var fileStream = new FileStream(statisticsFilename, FileMode.Create))
-            using (var writer = new StreamWriter(fileStream))
+            if (patternParams.Output == OutputStream.File)
             {
-                writer.WriteLine(passwordPattern.CurrentNumber);
+                mainWriter.Close();
+                outputStream?.Close();
+
+                var statisticsFilename = Path.Combine(
+                    directoryName,
+                    $"{filenameWithoutExtension}.{StatisticsFileExtension}"
+                );
+
+                using (var statFileStream = new FileStream(statisticsFilename, FileMode.Create))
+                using (var statWriter = new StreamWriter(statFileStream))
+                {
+                    statWriter.WriteLine(passwordPattern.CurrentNumber);
+                }
+
+
+                Console.WriteLine($"{passwordPattern.CurrentNumber:N0} variations saved into {outputFilename}.");
+                Console.WriteLine($"Statistics saved into {statisticsFilename}.");
             }
-            
-            Console.WriteLine($"{passwordPattern.CurrentNumber:N0} variations saved into {outputFilename}.");
-            Console.WriteLine($"Statistics saved into {statisticsFilename}.");
+
+            Console.WriteLine("Done.");
             Console.ReadKey();
         }
 
