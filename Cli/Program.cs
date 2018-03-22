@@ -148,6 +148,15 @@ namespace Cli
                         p.Step
                     );
                 }
+                else if (sectionParams is CompoundSectionParams)
+                {
+                    var p = sectionParams as CompoundSectionParams;
+                    passwordPatternBuilder.AddCompountPasswordSection(
+                        p.Chars,
+                        p.MinLength,
+                        p.CharCase
+                    );
+                }
                 else if (sectionParams is ArbitrarySectionParams)
                 {
                     var p = sectionParams as ArbitrarySectionParams;

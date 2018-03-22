@@ -2,12 +2,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Lib.PasswordSections
 {
-    public sealed class FixedPasswordSection : IPasswordSection
+    public sealed class CompoundPasswordSection : IPasswordSection
     {
-        public FixedPasswordSection(
+        public CompoundPasswordSection(
             string chars,
             int? minLength = null,
             CharCase charCase = CharCase.AsDefined)
@@ -16,7 +17,7 @@ namespace Lib.PasswordSections
             MinLength = NormalizeMinLength(minLength);
             CharCase = charCase;
 
-            BuildChars();
+            BuildSections();
         }
 
         public int MaxLength => OriginalChars.Length;
@@ -37,7 +38,7 @@ namespace Lib.PasswordSections
                     var currentLengthCount = 1ul;
                     for (var j = 0; j < i; j++)
                     {
-                        currentLengthCount *= (ulong) _chars[j].Length;
+                        currentLengthCount *= (ulong)_chars[j].Length;
                     }
                     result += currentLengthCount;
                 }
@@ -104,40 +105,33 @@ namespace Lib.PasswordSections
 
         object IEnumerator.Current => Current;
 
-        private void BuildChars()
+        private void BuildSections()
         {
-            Reset();
-
-            if (OriginalChars.Length == 0)
+            var matches = Regex.Matches(OriginalChars, "({.*?})", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+            _sections = new List<IPasswordSection>(2 * matches.Count + 1);
+            var firstIndex = 0;
+            if (matches.Count > 0)
             {
-                _chars = new char[0][];
-                return;
-            }
-
-            _chars = new char[OriginalChars.Length][];
-            var placeIndex = 0;
-            foreach (var c in OriginalChars)
-            {
-                if (CharCase != CharCase.AsDefined && char.IsLetter(c))
+                for (var i = 0; i < matches.Count; i++)
                 {
-                    switch (CharCase)
+                    var m = matches[i];
+                    if (m.Index > 0)
                     {
-                        case CharCase.Lower:
-                            _chars[placeIndex] = new[] { char.ToLower(c) };
-                            break;
-                        case CharCase.Upper:
-                            _chars[placeIndex] = new[] { char.ToUpper(c) };
-                            break;
-                        case CharCase.UpperAndLower:
-                            _chars[placeIndex] = new[] { char.ToLower(c), char.ToUpper(c) };
-                            break;
+                        var chars = OriginalChars.Substring(firstIndex, m.Index);
+                        _sections.Add(new FixedPasswordSection(chars, MinLength, CharCase));
                     }
+                    firstIndex = m.Index + m.Length;
+                    _sections.Add(new StringListPasswordSection(m.Value.Split("|")));
                 }
-                else
+                if (firstIndex < OriginalChars.Length)
                 {
-                    _chars[placeIndex] = new[] { c };
+                    var chars = OriginalChars.Substring(firstIndex);
+                    _sections.Add(new FixedPasswordSection(chars, null, CharCase));
                 }
-                placeIndex++;
+            }
+            else
+            {
+                _sections[0] = new FixedPasswordSection(OriginalChars, null, CharCase);
             }
         }
 
@@ -150,5 +144,6 @@ namespace Lib.PasswordSections
         private char[][] _chars;
         private int[] _permutationState;
         private int _currentLength;
+        private IList<IPasswordSection> _sections;
     }
 }
