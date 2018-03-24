@@ -214,5 +214,37 @@ namespace Test
             expected.AppendLine("qwertyuiop[]asdfghjkl;'zxcvbnm,.`QWERTYUIOP{}ASDFGHJKL:\"ZXCVBNM<>~");
             Assert.Equal(expected.ToString(), actual);
         }
+
+        [Fact]
+        public void Cps_SimplePatternStringTest()
+        {
+            var passwordPattern = new PasswordPatternBuilder()
+                .AddCompoundPasswordSection("{1|2|3}")
+                .Build();
+
+            var actual = passwordPattern.GetVariationsString();
+            var expected = new StringBuilder();
+            expected.AppendLine("1");
+            expected.AppendLine("2");
+            expected.AppendLine("3");
+            Assert.Equal(expected.ToString(), actual);
+        }
+
+        [Fact]
+        public void Cps_SimplePatternStringTest2()
+        {
+            var passwordPattern = new PasswordPatternBuilder()
+                .AddCompoundPasswordSection("{1|2||3|}")
+                .Build();
+
+            var actual = passwordPattern.GetVariationsString();
+            var expected = new StringBuilder();
+            expected.AppendLine("1");
+            expected.AppendLine("2");
+            expected.AppendLine("");
+            expected.AppendLine("3");
+            expected.AppendLine("");
+            Assert.Equal(expected.ToString(), actual);
+        }
     }
 }

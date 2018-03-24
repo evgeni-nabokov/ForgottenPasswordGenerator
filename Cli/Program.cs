@@ -151,7 +151,7 @@ namespace Cli
                 else if (sectionParams is CompoundSectionParams)
                 {
                     var p = sectionParams as CompoundSectionParams;
-                    passwordPatternBuilder.AddCompountPasswordSection(
+                    passwordPatternBuilder.AddCompoundPasswordSection(
                         p.Chars,
                         p.CharCase
                     );

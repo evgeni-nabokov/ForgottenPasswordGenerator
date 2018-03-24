@@ -50,7 +50,7 @@ namespace Test
         [Fact]
         public void SplitIntoElementsComplexTest()
         {
-            var actual = Parser.SplitIntoElements("|a|b||c|d|\\|");
+            var actual = Parser.SplitIntoElements("|a|b||c|d|\\||");
             var expected = new List<string>
             {
                 "",
@@ -59,7 +59,8 @@ namespace Test
                 "",
                 "c",
                 "d",
-                "|"
+                "|",
+                ""
             };
             Assert.Equal(expected, actual);
         }

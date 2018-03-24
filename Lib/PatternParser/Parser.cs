@@ -84,6 +84,7 @@ namespace Lib.PatternParser
             var result = new List<string>(content.Length);
 
             var slashFlag = false;
+            var barFlag = false;
             var element = new StringBuilder(content.Length);
             for (var i = 0; i < content.Length; i++)
             {
@@ -107,16 +108,18 @@ namespace Lib.PatternParser
                 {
                     result.Add(element.ToString());
                     element.Clear();
+                    barFlag = true;
                 }
                 else
                 {
                     element.Append(c);
+                    barFlag = false;
                 }
 
                 slashFlag = false;
             }
 
-            if (element.Length > 0)
+            if (barFlag || element.Length > 0)
             {
                 result.Add(element.ToString());
             }
