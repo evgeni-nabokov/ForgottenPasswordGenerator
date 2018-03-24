@@ -3,11 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using Lib.CharsetGenerators;
-using Lib.CharMappers;
 
 namespace Lib.PasswordSections
 {
-    public sealed class ArbitraryPasswordSection : IPasswordSection
+    public sealed class ArbitraryPasswordSection : 
+        IPasswordSection
     {
         public ArbitraryPasswordSection(
             string chars,

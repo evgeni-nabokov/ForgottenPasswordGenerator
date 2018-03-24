@@ -1,9 +1,12 @@
-﻿using System;
+﻿using System.Runtime.CompilerServices;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using Lib.CharMappers;
 using Lib.PasswordSections;
+
+[assembly: InternalsVisibleTo("Test")]
 
 namespace Lib.PasswordPattern
 {
@@ -202,7 +205,7 @@ namespace Lib.PasswordPattern
         }
 
 
-        #region Post build processors
+        #region Post-build processors
 
         private readonly IList<Func<StringBuilder, StringBuilder>> _processors = new List<Func<StringBuilder, StringBuilder>>(1);
         private readonly Func<StringBuilder, StringBuilder> _finalProcess = variation => variation;

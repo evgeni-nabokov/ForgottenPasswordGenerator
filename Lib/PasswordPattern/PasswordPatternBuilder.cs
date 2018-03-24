@@ -58,6 +58,14 @@ namespace Lib.PasswordPattern
             return this;
         }
 
+        public PasswordPatternBuilder AddCompoundPasswordSection(
+            string chars,
+            CharCase charCase = CharCase.AsDefined)
+        {
+            _sections.Add(new CompoundPasswordSection(chars, charCase));
+            return this;
+        }
+
         public PasswordPatternBuilder AddArbitraryPasswordSection(
             string chars,
             int maxLength,

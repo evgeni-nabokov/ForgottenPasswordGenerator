@@ -43,6 +43,9 @@ namespace Cli.Yaml
                     case "NUMBERRANGE":
                         result = sectionDeserializer.Deserialize<NumberRangeSectionParams>(parser);
                         break;
+                    case "COMPOUND":
+                        result = sectionDeserializer.Deserialize<CompoundSectionParams>(parser);
+                        break;
                     default:
                         result = sectionDeserializer.Deserialize<ArbitrarySectionParams>(parser);
                         break;

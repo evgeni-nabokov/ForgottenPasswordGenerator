@@ -10,7 +10,7 @@ namespace Cli
     {
         private const string PasswordFileExtension = "pwd";
         private const string StatisticsFileExtension = "stat";
-        private const ulong ChunkSize = 1_000_000;
+        private const ulong ChunkSize = 500_000;
 
         static void Main(string[] args)
         {
@@ -146,6 +146,14 @@ namespace Cli
                         p.MinValue,
                         p.MaxValue,
                         p.Step
+                    );
+                }
+                else if (sectionParams is CompoundSectionParams)
+                {
+                    var p = sectionParams as CompoundSectionParams;
+                    passwordPatternBuilder.AddCompoundPasswordSection(
+                        p.Chars,
+                        p.CharCase
                     );
                 }
                 else if (sectionParams is ArbitrarySectionParams)
