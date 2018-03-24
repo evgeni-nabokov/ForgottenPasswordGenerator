@@ -14,89 +14,102 @@ namespace Lib.PasswordSections
             CharCase charCase = CharCase.AsDefined)
         {
             OriginalChars = chars;
-            MinLength = NormalizeMinLength(minLength);
             CharCase = charCase;
-
             BuildSections();
+            MinLength = NormalizeMinLength(minLength);
+
+            if (minLength.HasValue)
+            {
+                _checkers.Add(BreaksMinLength);
+            }
+
+            if (_checkers.Count > 0)
+            {
+                _breaksRestrictions = BreaksAnyRestriction;
+            }
         }
-
-        public int MaxLength => OriginalChars.Length;
-
-        public int MinLength { get; }
 
         public string OriginalChars { get; }
 
         public CharCase CharCase { get; }
 
-        public ulong Count
+        public IReadOnlyList<IPasswordSection> Sections { get; }
+
+        public int MaxLength
         {
             get
             {
-                var result = 0ul;
-                for (var i = MinLength; i <= MaxLength; i++)
+                var result = 0;
+
+                for (var i = 0; i < Sections.Count; i++)
                 {
-                    var currentLengthCount = 1ul;
-                    for (var j = 0; j < i; j++)
-                    {
-                        currentLengthCount *= (ulong)_chars[j].Length;
-                    }
-                    result += currentLengthCount;
+                    result += Sections[0].MaxLength;
                 }
 
                 return result;
             }
         }
 
-        public IEnumerable<string> GetVariations()
-        {
-            do
-            {
-                yield return Current;
+        public int MinLength { get; }
 
-            } while (MoveNext());
-        }
+        public string Current => BuildCurrent().ToString();
 
-        public string Current
+        public ulong Count
         {
             get
             {
-                var builder = new StringBuilder(_currentLength);
+                var result = 1ul;
 
-                for (var i = 0; i < _currentLength; i++)
+                if (Sections == null || Sections.Count == 0) return result;
+
+                for (var i = 0; i < Sections.Count; i++)
                 {
-                    builder.Append(_chars[i][_permutationState[i]]);
+                    result *= Sections[i].Count;
                 }
 
-                return builder.ToString();
+                return result;
             }
         }
 
         public bool MoveNext()
         {
-            for (var i = 0; i < _currentLength; i++)
+            while (true)
             {
-                if (_permutationState[i] < _chars[i].Length - 1)
+                var moved = false;
+                for (var i = 0; i < Sections.Count; i++)
                 {
-                    _permutationState[i] += 1;
-                    return true;
+                    if (Sections[i].MoveNext())
+                    {
+                        moved = true;
+                        break;
+                    }
+                    Sections[i].Reset();
                 }
-                _permutationState[i] = 0;
-            }
 
-            if (_currentLength < MaxLength)
-            {
-                _currentLength++;
-                _permutationState = new int[_currentLength];
-                return true;
-            }
 
-            return false;
+                if (moved)
+                {
+                    if (!_breaksRestrictions(BuildCurrent()))
+                    {
+                        return true;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
         }
 
-        public void Reset()
+        public IEnumerable<string> GetVariations()
         {
-            _currentLength = MinLength;
-            _permutationState = new int[_currentLength];
+            if (Sections == null || Sections.Count == 0) yield break;
+
+            do
+            {
+                yield return Current;
+
+            } while (MoveNext());
         }
 
         public void Dispose()
@@ -105,10 +118,80 @@ namespace Lib.PasswordSections
 
         object IEnumerator.Current => Current;
 
+        public void Reset()
+        {
+            for (var i = 0; i < Sections.Count; i++)
+            {
+                Sections[i].Reset();
+            }
+            //Init();
+        }
+
+        //private void Init()
+        //{
+        //    var current = BuildCurrent();
+        //    LoopNumber = 1;
+
+        //    if (_breaksRestrictions(current))
+        //    {
+        //        if (!MoveNext())
+        //        {
+        //            throw new Exception("There are no combinations.");
+        //        }
+        //    }
+
+        //    CurrentNumber = 1;
+        //}
+
+        private StringBuilder BuildCurrent()
+        {
+            var result = new StringBuilder(MaxLength);
+
+            for (var i = 0; i < Sections.Count; i++)
+            {
+                result.Append(Sections[i].Current);
+            }
+
+            return result;
+        }
+
+        //private void BuildSections()
+        //{
+        //    var matches = Regex.Matches(OriginalChars, "({.*?})", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        //    var sections = new List<IPasswordSection>(2 * matches.Count + 1);
+        //    var firstIndex = 0;
+        //    if (matches.Count > 0)
+        //    {
+        //        for (var i = 0; i < matches.Count; i++)
+        //        {
+        //            var m = matches[i];
+        //            if (m.Index > 0)
+        //            {
+        //                var chars = OriginalChars.Substring(firstIndex, m.Index);
+        //                sections.Add(new FixedPasswordSection(chars, MinLength, CharCase));
+        //            }
+        //            firstIndex = m.Index + m.Length;
+        //            var value = m.Value.Substring(1, m.Value.Length - 2);
+        //            sections.Add(new StringListPasswordSection(value.Split("|")));
+        //        }
+        //        if (firstIndex < OriginalChars.Length)
+        //        {
+        //            var chars = OriginalChars.Substring(firstIndex);
+        //            sections.Add(new FixedPasswordSection(chars, null, CharCase));
+        //        }
+        //    }
+        //    else
+        //    {
+        //        sections[0] = new FixedPasswordSection(OriginalChars, null, CharCase);
+        //    }
+        //}
+
         private void BuildSections()
         {
+            
+
             var matches = Regex.Matches(OriginalChars, "({.*?})", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-            _sections = new List<IPasswordSection>(2 * matches.Count + 1);
+            var sections = new List<IPasswordSection>(2 * matches.Count + 1);
             var firstIndex = 0;
             if (matches.Count > 0)
             {
@@ -118,22 +201,24 @@ namespace Lib.PasswordSections
                     if (m.Index > 0)
                     {
                         var chars = OriginalChars.Substring(firstIndex, m.Index);
-                        _sections.Add(new FixedPasswordSection(chars, MinLength, CharCase));
+                        sections.Add(new FixedPasswordSection(chars, MinLength, CharCase));
                     }
                     firstIndex = m.Index + m.Length;
-                    _sections.Add(new StringListPasswordSection(m.Value.Split("|")));
+                    var value = m.Value.Substring(1, m.Value.Length - 2);
+                    sections.Add(new StringListPasswordSection(value.Split("|")));
                 }
                 if (firstIndex < OriginalChars.Length)
                 {
                     var chars = OriginalChars.Substring(firstIndex);
-                    _sections.Add(new FixedPasswordSection(chars, null, CharCase));
+                    sections.Add(new FixedPasswordSection(chars, null, CharCase));
                 }
             }
             else
             {
-                _sections[0] = new FixedPasswordSection(OriginalChars, null, CharCase);
+                sections[0] = new FixedPasswordSection(OriginalChars, null, CharCase);
             }
         }
+
 
         private int NormalizeMinLength(int? minLength)
         {
@@ -141,9 +226,30 @@ namespace Lib.PasswordSections
             return Math.Min(Math.Max(0, result), MaxLength);
         }
 
-        private char[][] _chars;
-        private int[] _permutationState;
-        private int _currentLength;
-        private IList<IPasswordSection> _sections;
+
+        #region Checkers
+
+        private readonly IList<Func<StringBuilder, bool>> _checkers = new List<Func<StringBuilder, bool>>(3);
+        private readonly Func<StringBuilder, bool> _breaksRestrictions = variation => false;
+
+        private bool BreaksAnyRestriction(StringBuilder variation)
+        {
+            for (var i = 0; i < _checkers.Count; i++)
+            {
+                if (_checkers[i](variation))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private bool BreaksMinLength(StringBuilder variation)
+        {
+            return variation.Length < MinLength;
+        }
+        #endregion
     }
+
+    
 }
