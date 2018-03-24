@@ -10,7 +10,7 @@ namespace Cli
     {
         private const string PasswordFileExtension = "pwd";
         private const string StatisticsFileExtension = "stat";
-        private const ulong ChunkSize = 1_000_000;
+        private const ulong ChunkSize = 500_000;
 
         static void Main(string[] args)
         {

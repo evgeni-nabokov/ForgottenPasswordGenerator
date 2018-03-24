@@ -11,7 +11,7 @@ namespace Lib.PasswordSections
         public StringListPasswordSection(
             IList<string> stringList)
         {
-            StringList = new ReadOnlyCollection<string>(stringList);
+            StringList = new ReadOnlyCollection<string>(stringList.Distinct().ToList());
 
             var sortedByLength = StringList.OrderBy(x => x.Length).ToArray();
             MinLength = sortedByLength[0].Length;
