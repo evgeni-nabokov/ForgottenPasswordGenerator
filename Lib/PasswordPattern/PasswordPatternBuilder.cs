@@ -60,10 +60,9 @@ namespace Lib.PasswordPattern
 
         public PasswordPatternBuilder AddCompountPasswordSection(
             string chars,
-            int? minLength = null,
             CharCase charCase = CharCase.AsDefined)
         {
-            _sections.Add(new CompoundPasswordSection(chars, minLength, charCase));
+            _sections.Add(new CompoundPasswordSection(chars, charCase));
             return this;
         }
 

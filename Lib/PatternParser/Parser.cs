@@ -79,6 +79,51 @@ namespace Lib.PatternParser
             return CombineAdjacentPlainTextPieces(result);
         }
 
+        public static IList<string> SplitIntoElements(string content)
+        {
+            var result = new List<string>(content.Length);
+
+            var slashFlag = false;
+            var element = new StringBuilder(content.Length);
+            for (var i = 0; i < content.Length; i++)
+            {
+                var c = content[i];
+
+                if (c == '\\')
+                {
+                    if (slashFlag)
+                    {
+                        element.Append(c);
+                        slashFlag = false;
+                    }
+                    else
+                    {
+                        slashFlag = true;
+                    }
+                    continue;
+                }
+
+                if (c == '|' && !slashFlag)
+                {
+                    result.Add(element.ToString());
+                    element.Clear();
+                }
+                else
+                {
+                    element.Append(c);
+                }
+
+                slashFlag = false;
+            }
+
+            if (element.Length > 0)
+            {
+                result.Add(element.ToString());
+            }
+
+            return result;
+        }
+
         private static IList<PatternPiece> CombineAdjacentPlainTextPieces(IList<PatternPiece> sections)
         {
             var result = new List<PatternPiece>(sections.Count);

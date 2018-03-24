@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace Lib.PasswordSections
@@ -8,9 +9,9 @@ namespace Lib.PasswordSections
     public sealed class StringListPasswordSection : IPasswordSection
     {
         public StringListPasswordSection(
-            string[] stringList)
+            IList<string> stringList)
         {
-            StringList = Array.AsReadOnly(stringList);
+            StringList = new ReadOnlyCollection<string>(stringList);
 
             var sortedByLength = StringList.OrderBy(x => x.Length).ToArray();
             MinLength = sortedByLength[0].Length;

@@ -153,7 +153,6 @@ namespace Cli
                     var p = sectionParams as CompoundSectionParams;
                     passwordPatternBuilder.AddCompountPasswordSection(
                         p.Chars,
-                        p.MinLength,
                         p.CharCase
                     );
                 }
