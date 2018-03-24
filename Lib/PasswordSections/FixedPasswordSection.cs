@@ -118,13 +118,10 @@ namespace Lib.PasswordSections
             var placeIndex = 0;
             foreach (var c in OriginalChars)
             {
-                if (char.IsLetter(c))
+                if (CharCase != CharCase.AsDefined && char.IsLetter(c))
                 {
                     switch (CharCase)
                     {
-                        case CharCase.AsDefined:
-                            _chars[placeIndex] = new[] { c };
-                            break;
                         case CharCase.Lower:
                             _chars[placeIndex] = new[] { char.ToLower(c) };
                             break;

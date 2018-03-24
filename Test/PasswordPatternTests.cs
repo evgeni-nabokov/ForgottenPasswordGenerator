@@ -8,10 +8,10 @@ using Xunit;
 
 namespace Test
 {
-    public class Tests
+    public class PasswordPatternTests
     {
         [Fact]
-        public void ApsFixedLengthVariationsStringTest()
+        public void Aps_FixedLengthVariationsStringTest()
         {
             var passwordPattern = new PasswordPatternBuilder()
                 .AddArbitraryPasswordSection("01", 2, 2)
@@ -27,7 +27,7 @@ namespace Test
         }
 
         [Fact]
-        public void ApsVariableLengthVariationsStringTest()
+        public void Aps_VariableLengthVariationsStringTest()
         {
             var passwordPattern = new PasswordPatternBuilder()
                 .AddArbitraryPasswordSection("01", 2)
@@ -46,7 +46,7 @@ namespace Test
         }
 
         [Fact]
-        public void ApsNoSingleCharSequenceVariationsStringTest()
+        public void Aps_NoSingleCharSequenceVariationsStringTest()
         {
             var passwordPattern = new PasswordPatternBuilder(1)
                 .AddArbitraryPasswordSection("01", 2, 2)
@@ -60,7 +60,7 @@ namespace Test
         }
 
         [Fact]
-        public void ApsFixedLengthNoSingleCharSequenceVariationsStringTest()
+        public void Aps_FixedLengthNoSingleCharSequenceVariationsStringTest()
         {
             var passwordPattern = new PasswordPatternBuilder(1)
                 .AddArbitraryPasswordSection("01", 2, 2)
@@ -74,7 +74,7 @@ namespace Test
         }
 
         [Fact]
-        public void FpsFixedLengthUpperAndLowerVariationsStringTest()
+        public void Fps_FixedLengthUpperAndLowerVariationsStringTest()
         {
             var passwordPattern = new PasswordPatternBuilder()
                 .AddFixedPasswordSection("ab", null, CharCase.UpperAndLower)
@@ -90,7 +90,7 @@ namespace Test
         }
 
         [Fact]
-        public void FpsVariableLengthUpperAndLowerVariationsStringTest()
+        public void Fps_VariableLengthUpperAndLowerVariationsStringTest()
         {
             var passwordPattern = new PasswordPatternBuilder(2)
                 .AddFixedPasswordSection("ab", 0, CharCase.UpperAndLower)
@@ -109,7 +109,7 @@ namespace Test
         }
 
         [Fact]
-        public void FpsVariableLengthVariationCountTest()
+        public void Fps_VariableLengthVariationCountTest()
         {
             var passwordPattern = new PasswordPatternBuilder(2)
                 .AddFixedPasswordSection("ab", 0, CharCase.UpperAndLower)
@@ -122,7 +122,7 @@ namespace Test
         }
 
         [Fact]
-        public void FpsVariableLengthVariationNumberTest()
+        public void Fps_VariableLengthVariationNumberTest()
         {
             var passwordPattern = new PasswordPatternBuilder(2)
                 .AddFixedPasswordSection("ab", 0, CharCase.UpperAndLower)
@@ -136,7 +136,7 @@ namespace Test
         }
 
         [Fact]
-        public void FpsMaxCapitalLetterSequenceLengthStringTest()
+        public void Fps_MaxCapitalLetterSequenceLengthStringTest()
         {
             var passwordPattern = new PasswordPatternBuilder(null, 1)
                 .AddFixedPasswordSection("abc", 3, CharCase.UpperAndLower)
@@ -153,7 +153,7 @@ namespace Test
         }
 
         [Fact]
-        public void FpsMinCapitalLetterDistanceStringTest()
+        public void Fps_MinCapitalLetterDistanceStringTest()
         {
             var passwordPattern = new PasswordPatternBuilder(null, null, 1)
                 .AddFixedPasswordSection("abc", 3, CharCase.UpperAndLower)
@@ -171,7 +171,7 @@ namespace Test
 
        
         [Fact]
-        public void NrpsStringTest()
+        public void Nrps_StringTest()
         {
             var passwordPattern = new PasswordPatternBuilder()
                 .AddNumberRangePasswordSection(-2, 2)
@@ -188,7 +188,7 @@ namespace Test
         }
 
         [Fact]
-        public void SlpsStringTest()
+        public void Slps_StringTest()
         {
             var passwordPattern = new PasswordPatternBuilder()
                 .AddStringListPasswordSection(new []{ "cat", "dog", "mouse" })
@@ -203,7 +203,7 @@ namespace Test
         }
 
         [Fact]
-        public void FpsRussianCharMapperStringTest()
+        public void Fps_RussianCharMapperStringTest()
         {
             var passwordPattern = new PasswordPatternBuilder(mapper: new RussianToEnglishMapper())
                 .AddFixedPasswordSection("ÈˆÛÍÂÌ„¯˘Áı˙Ù˚‚‡ÔÓÎ‰Ê˝ˇ˜ÒÏËÚ¸·˛∏…÷” ≈Õ√ÿŸ«’⁄‘€¬¿œ–ŒÀƒ∆›ﬂ◊—Ã»“‹¡ﬁ®")
@@ -212,6 +212,38 @@ namespace Test
             var actual = passwordPattern.GetVariationsString();
             var expected = new StringBuilder();
             expected.AppendLine("qwertyuiop[]asdfghjkl;'zxcvbnm,.`QWERTYUIOP{}ASDFGHJKL:\"ZXCVBNM<>~");
+            Assert.Equal(expected.ToString(), actual);
+        }
+
+        [Fact]
+        public void Cps_SimplePatternStringTest()
+        {
+            var passwordPattern = new PasswordPatternBuilder()
+                .AddCompoundPasswordSection("{1|2|3}")
+                .Build();
+
+            var actual = passwordPattern.GetVariationsString();
+            var expected = new StringBuilder();
+            expected.AppendLine("1");
+            expected.AppendLine("2");
+            expected.AppendLine("3");
+            Assert.Equal(expected.ToString(), actual);
+        }
+
+        [Fact]
+        public void Cps_SimplePatternStringTest2()
+        {
+            var passwordPattern = new PasswordPatternBuilder()
+                .AddCompoundPasswordSection("{1|2||3|}")
+                .Build();
+
+            var actual = passwordPattern.GetVariationsString();
+            var expected = new StringBuilder();
+            expected.AppendLine("1");
+            expected.AppendLine("2");
+            expected.AppendLine("");
+            expected.AppendLine("3");
+            expected.AppendLine("");
             Assert.Equal(expected.ToString(), actual);
         }
     }
