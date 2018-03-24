@@ -15,7 +15,7 @@ namespace Test
         [Fact]
         public void SimplePatternTest()
         {
-            var actual = PatternParser.SplitIntoSections("a{1}b");
+            var actual = Parser.SplitIntoPieces("a{1}b");
             var expected = new List<PatternPiece>
             {
                 new PatternPiece("a", 0, PatternPieceType.PlainString),
@@ -28,7 +28,7 @@ namespace Test
         [Fact]
         public void ComplexPatternTest()
         {
-            var actual = PatternParser.SplitIntoSections("{}a}b{{1}}c{d{");
+            var actual = Parser.SplitIntoPieces("{}a}b{{1}}c{d{");
             var expected = new List<PatternPiece>
             {
                 new PatternPiece("a}b", 2, PatternPieceType.PlainString),

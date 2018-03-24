@@ -1,18 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
 
 namespace Lib.PatternParser
 {
-    internal static class PatternParser
+    internal static class Parser
     {
-        public static IList<PatternPiece> SplitIntoSections(string pattern)
+        public static IList<PatternPiece> SplitIntoPieces(string pattern)
         {
             var result = new List<PatternPiece>(pattern.Length);
 
             var braceFlag = false;
             var slashFlag = false;
-            var section = new StringBuilder(pattern.Length);
+            var piece = new StringBuilder(pattern.Length);
             var sectionStartIndex = 0;
             for (var i = 0; i < pattern.Length; i++)
             {
@@ -22,7 +21,7 @@ namespace Lib.PatternParser
                 {
                     if (slashFlag)
                     {
-                        section.Append(c);
+                        piece.Append(c);
                         slashFlag = false;
                     }
                     else
@@ -36,51 +35,51 @@ namespace Lib.PatternParser
                 {
                     if (!slashFlag && !braceFlag)
                     {
-                        if (section.Length > 0)
+                        if (piece.Length > 0)
                         {
-                            result.Add(new PatternPiece(section.ToString(), sectionStartIndex, PatternPieceType.PlainString));
-                            section.Clear();
+                            result.Add(new PatternPiece(piece.ToString(), sectionStartIndex, PatternPieceType.PlainString));
+                            piece.Clear();
                         }
 
                         braceFlag = true;
                         sectionStartIndex = i;
                     }
-                    section.Append(c);
+                    piece.Append(c);
                 }
                 else if (c == '}')
                 {
                     if (slashFlag || !braceFlag)
                     {
-                        section.Append(c);
+                        piece.Append(c);
                     }
                     else
                     {
-                        if (section.Length > 1)
+                        if (piece.Length > 1)
                         {
-                            result.Add(new PatternPiece(section.ToString(1), sectionStartIndex, PatternPieceType.BraceContent));
+                            result.Add(new PatternPiece(piece.ToString(1), sectionStartIndex, PatternPieceType.BraceContent));
                         }
-                        section.Clear();
+                        piece.Clear();
                         braceFlag = false;
                         sectionStartIndex = i + 1;
                     }
                 }
                 else
                 {
-                    section.Append(c);
+                    piece.Append(c);
                 }
 
                 slashFlag = false;
             }
 
-            if (section.Length > 0)
+            if (piece.Length > 0)
             {
-                result.Add(new PatternPiece(section.ToString(), sectionStartIndex, PatternPieceType.PlainString));
+                result.Add(new PatternPiece(piece.ToString(), sectionStartIndex, PatternPieceType.PlainString));
             }
 
-            return CombineAdjacentPlainTextSections(result);
+            return CombineAdjacentPlainTextPieces(result);
         }
 
-        private static IList<PatternPiece> CombineAdjacentPlainTextSections(IList<PatternPiece> sections)
+        private static IList<PatternPiece> CombineAdjacentPlainTextPieces(IList<PatternPiece> sections)
         {
             var result = new List<PatternPiece>(sections.Count);
 
@@ -88,23 +87,23 @@ namespace Lib.PatternParser
             var accumStartIndex = 0;
             for (var i = 0; i < sections.Count; i++)
             {
-                var s = sections[i];
-                if (s.Type == PatternPieceType.BraceContent)
+                var p = sections[i];
+                if (p.Type == PatternPieceType.BraceContent)
                 {
                     if (accum.Length > 0)
                     {
                         result.Add(new PatternPiece(accum.ToString(), accumStartIndex, PatternPieceType.PlainString));
                         accum.Clear();
                     }
-                    result.Add(s);
+                    result.Add(p);
                 }
                 else
                 {
                     if (accum.Length == 0)
                     {
-                        accumStartIndex = s.StartIndex;
+                        accumStartIndex = p.StartIndex;
                     }
-                    accum.Append(s.Content);
+                    accum.Append(p.Content);
                 }
             }
 

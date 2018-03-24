@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-using System.Text.RegularExpressions;
+using Lib.PatternParser;
 
 namespace Lib.PasswordSections
 {
@@ -155,70 +155,23 @@ namespace Lib.PasswordSections
             return result;
         }
 
-        //private void BuildSections()
-        //{
-        //    var matches = Regex.Matches(OriginalChars, "({.*?})", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        //    var sections = new List<IPasswordSection>(2 * matches.Count + 1);
-        //    var firstIndex = 0;
-        //    if (matches.Count > 0)
-        //    {
-        //        for (var i = 0; i < matches.Count; i++)
-        //        {
-        //            var m = matches[i];
-        //            if (m.Index > 0)
-        //            {
-        //                var chars = OriginalChars.Substring(firstIndex, m.Index);
-        //                sections.Add(new FixedPasswordSection(chars, MinLength, CharCase));
-        //            }
-        //            firstIndex = m.Index + m.Length;
-        //            var value = m.Value.Substring(1, m.Value.Length - 2);
-        //            sections.Add(new StringListPasswordSection(value.Split("|")));
-        //        }
-        //        if (firstIndex < OriginalChars.Length)
-        //        {
-        //            var chars = OriginalChars.Substring(firstIndex);
-        //            sections.Add(new FixedPasswordSection(chars, null, CharCase));
-        //        }
-        //    }
-        //    else
-        //    {
-        //        sections[0] = new FixedPasswordSection(OriginalChars, null, CharCase);
-        //    }
-        //}
-
         private void BuildSections()
         {
-            
-
-            var matches = Regex.Matches(OriginalChars, "({.*?})", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-            var sections = new List<IPasswordSection>(2 * matches.Count + 1);
-            var firstIndex = 0;
-            if (matches.Count > 0)
+            var pieces = Parser.SplitIntoPieces(OriginalChars);
+            var sections = new List<IPasswordSection>(pieces.Count);
+            for (var i = 0; i < pieces.Count; i++)
             {
-                for (var i = 0; i < matches.Count; i++)
+                var p = pieces[i];
+                if (p.Type == PatternPieceType.PlainString)
                 {
-                    var m = matches[i];
-                    if (m.Index > 0)
-                    {
-                        var chars = OriginalChars.Substring(firstIndex, m.Index);
-                        sections.Add(new FixedPasswordSection(chars, MinLength, CharCase));
-                    }
-                    firstIndex = m.Index + m.Length;
-                    var value = m.Value.Substring(1, m.Value.Length - 2);
-                    sections.Add(new StringListPasswordSection(value.Split("|")));
+                    sections.Add(new FixedPasswordSection(p.Content, MinLength, CharCase));
                 }
-                if (firstIndex < OriginalChars.Length)
+                else
                 {
-                    var chars = OriginalChars.Substring(firstIndex);
-                    sections.Add(new FixedPasswordSection(chars, null, CharCase));
+                    sections.Add(new StringListPasswordSection(p.Content.Split("|")));
                 }
-            }
-            else
-            {
-                sections[0] = new FixedPasswordSection(OriginalChars, null, CharCase);
             }
         }
-
 
         private int NormalizeMinLength(int? minLength)
         {
