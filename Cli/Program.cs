@@ -114,17 +114,20 @@ namespace Cli
 
         private static PasswordPattern CreatePasswordPatternFromParams(PatternParams patternParams)
         {
-            var sup = patternParams.Suppression;
-
             var passwordPatternBuilder = new PasswordPatternBuilder()
-                .SetSuppressOptions(new SuppressOptions(
+                .SetCharMapper(CharMapperFactory.CreateCharMapper(patternParams.CharMapper));
+
+            if (patternParams.Suppression != null)
+            {
+                var sup = patternParams.Suppression;
+                passwordPatternBuilder.SetSuppressOptions(new SuppressOptions(
                     sup.ForbiddenDuplicateChars,
                     sup.AdjacentDuplicateMaxLength,
                     sup.CapitalAdjacentMaxLength,
                     sup.CapitalCharMinDistance,
                     sup.Regex
-                ))
-                .SetCharMapper(CharMapperFactory.CreateCharMapper(patternParams.CharMapper));
+                ));
+            }
 
             for (var i = 0; i < patternParams.Sections.Length; i++)
             {
