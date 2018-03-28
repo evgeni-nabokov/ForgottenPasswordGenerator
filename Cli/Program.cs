@@ -3,6 +3,7 @@ using System.IO;
 using Cli.Params;
 using Cli.Yaml;
 using Lib.PasswordPattern;
+using Lib.PasswordPattern.Suppression;
 
 namespace Cli
 {
@@ -113,12 +114,17 @@ namespace Cli
 
         private static PasswordPattern CreatePasswordPatternFromParams(PatternParams patternParams)
         {
-            var passwordPatternBuilder = new PasswordPatternBuilder(
-                patternParams.MaxSingeCharSequenceLength,
-                patternParams.MaxCapitalLetterSequenceLength,
-                patternParams.MinCapitalCharDistance,
-                CharMapperFactory.CreateCharMapper(patternParams.CharMapper)
-            );
+            var sup = patternParams.Suppression;
+
+            var passwordPatternBuilder = new PasswordPatternBuilder()
+                .SetSuppressOptions(new SuppressOptions(
+                    sup.ForbiddenDuplicateChars,
+                    sup.AdjacentDuplicateMaxLength,
+                    sup.CapitalAdjacentMaxLength,
+                    sup.CapitalCharMinDistance,
+                    sup.Regex
+                ))
+                .SetCharMapper(CharMapperFactory.CreateCharMapper(patternParams.CharMapper));
 
             for (var i = 0; i < patternParams.Sections.Length; i++)
             {

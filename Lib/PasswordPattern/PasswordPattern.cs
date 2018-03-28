@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using Lib.CharMappers;
+using Lib.PasswordPattern.Suppression;
 using Lib.PasswordSections;
 
 [assembly: InternalsVisibleTo("Test")]
@@ -14,38 +15,18 @@ namespace Lib.PasswordPattern
     {
         public PasswordPattern(
             IEnumerable<IPasswordSection> sections,
-            int? maxSingeCharSequenceLength = null,
-            int? maxCapitalLetterSequenceLength = null,
-            int? minCapitalLetterDistance = null,
+            ISuppressor suppressor,
             ICharMapper mapper = null)
         {
             Sections = new List<IPasswordSection>(sections);
-
-            MaxSingeCharSequenceLength = maxSingeCharSequenceLength < 1 ? null : maxSingeCharSequenceLength;
-            if (MaxSingeCharSequenceLength.HasValue)
-            {
-                _checkers.Add(BreaksMaxSingeCharSequence);
-            }
-
-            MaxCapitalLetterSequenceLength = maxCapitalLetterSequenceLength < 1 ? null : maxCapitalLetterSequenceLength;
-            if (MaxCapitalLetterSequenceLength.HasValue)
-            {
-                _checkers.Add(BreaksMaxCapitalLetterSequenceLength);
-            }
-
-            MinCapitalLetterDistance = minCapitalLetterDistance < 1 ? null : minCapitalLetterDistance;
-            if (MinCapitalLetterDistance.HasValue)
-            {
-                _checkers.Add(BreaksMinCapitalLetterDistance);
-            }
-
-            if (_checkers.Count > 0)
-            {
-                _breaksRestrictions = BreaksAnyRestriction;
-            }
-
+            Suppressor = suppressor;
             CharMapper = mapper;
 
+            if (Suppressor != null)
+            {
+                _breaksRestrictions = Suppressor.BreaksRestrictions;
+            }
+            
             if (CharMapper != null)
             {
                 _processors.Add(MapCharacters);
@@ -55,15 +36,11 @@ namespace Lib.PasswordPattern
             Init();
         }
 
-        public IReadOnlyList<IPasswordSection> Sections { get; }
+        public readonly IReadOnlyList<IPasswordSection> Sections;
 
-        public int? MaxSingeCharSequenceLength { get; }
+        public readonly ISuppressor Suppressor;
 
-        public int? MaxCapitalLetterSequenceLength { get; }
-
-        public int? MinCapitalLetterDistance { get; }
-
-        public ICharMapper CharMapper { get; }
+        public readonly ICharMapper CharMapper;
 
         public int MaxLength
         {
@@ -185,7 +162,7 @@ namespace Lib.PasswordPattern
             {
                 if (!MoveNext())
                 {
-                    throw new Exception("There are no combinations.");
+                    throw new Exception("There are no variations.");
                 }
             }
 
@@ -233,89 +210,6 @@ namespace Lib.PasswordPattern
 
         #endregion
 
-        #region Checkers
-
-        private readonly IList<Func<StringBuilder, bool>> _checkers = new List<Func<StringBuilder, bool>>(3);
         private readonly Func<StringBuilder, bool> _breaksRestrictions = variation => false;
-
-        private bool BreaksAnyRestriction(StringBuilder variation)
-        {
-            for (var i = 0; i < _checkers.Count; i++)
-            {
-                if (_checkers[i](variation))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        private bool BreaksMaxSingeCharSequence(StringBuilder variation)
-        {
-            var seqLength = 1;
-            for (var i = 1; i < variation.Length; i++)
-            {
-                if (variation[i - 1] == variation[i])
-                {
-                    seqLength++;
-                    if (seqLength > MaxSingeCharSequenceLength)
-                    {
-                        return true;
-                    }
-                }
-                else
-                {
-                    seqLength = 1;
-                }
-            }
-            return false;
-        }
-
-        private bool BreaksMaxCapitalLetterSequenceLength(StringBuilder variation)
-        {
-            var seqLength = 0;
-            for (var i = 0; i < variation.Length; i++)
-            {
-                if (char.IsUpper(variation[i]))
-                {
-                    seqLength++;
-                    if (seqLength > MaxCapitalLetterSequenceLength)
-                    {
-                        return true;
-                    }
-                }
-                else
-                {
-                    seqLength = 0;
-                }
-            }
-            return false;
-        }
-
-        private bool BreaksMinCapitalLetterDistance(StringBuilder variation)
-        {
-            var startIndex = -1;
-            for (var i = 0; i < variation.Length; i++)
-            {
-                if (char.IsUpper(variation[i]))
-                {
-                    if (startIndex < 0)
-                    {
-                        startIndex = i;
-                    }
-                    else
-                    {
-                        if (i - startIndex - 1 < MinCapitalLetterDistance)
-                        {
-                            return true;
-                        }
-                        startIndex = i;
-                    }
-                }
-            }
-            return false;
-        }
-
-        #endregion
     }
 }

@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Lib.CharMappers;
+using Lib.PasswordPattern.Suppression;
 using Lib.PasswordSections;
 
 namespace Lib.PasswordPattern
@@ -8,23 +8,41 @@ namespace Lib.PasswordPattern
     public class PasswordPatternBuilder
     {
         private readonly IList<IPasswordSection> _sections;
-        private readonly int? _maxSingeCharSequenceLength;
-        private readonly int? _maxCapitalLetterSequenceLength;
-        private readonly int? _minCapitalLetterDistance;
-        private readonly ICharMapper _mapper;
 
+        private ISuppressor _suppressor;
+        private ICharMapper _mapper;
+        private SuppressOptions _suppressOptions;
 
-        public PasswordPatternBuilder(
-            int? maxSingeCharSequenceLength = null,
-            int? maxCapitalLetterSequenceLength = null,
-            int? minCapitalLetterDistance = null,
-            ICharMapper mapper = null)
+        public PasswordPatternBuilder()
         {
-            _sections = new List<IPasswordSection>(4);
-            _maxSingeCharSequenceLength = maxSingeCharSequenceLength;
-            _maxCapitalLetterSequenceLength = maxCapitalLetterSequenceLength;
-            _minCapitalLetterDistance = minCapitalLetterDistance;
+            _sections = new List<IPasswordSection>();
+        }
+
+        public PasswordPattern Build()
+        {
+            return new PasswordPattern(
+                _sections,
+                _suppressor ?? (_suppressOptions != null ? new Suppressor(_suppressOptions) : null),
+                _mapper
+            );
+        }
+
+        public PasswordPatternBuilder SetSuppressor(ISuppressor suppressor)
+        {
+            _suppressor = suppressor;
+            return this;
+        }
+
+        public PasswordPatternBuilder SetCharMapper(ICharMapper mapper)
+        {
             _mapper = mapper;
+            return this;
+        }
+
+        public PasswordPatternBuilder SetSuppressOptions(SuppressOptions options)
+        {
+            _suppressOptions = options;
+            return this;
         }
 
         public PasswordPatternBuilder AddSection(IPasswordSection section)
@@ -76,15 +94,40 @@ namespace Lib.PasswordPattern
             return this;
         }
 
-        public PasswordPattern Build()
+        public PasswordPatternBuilder SetForbiddenDuplicateChars(string forbiddenDuplicateChars)
         {
-            return new PasswordPattern(
-                _sections,
-                _maxSingeCharSequenceLength,
-                _maxCapitalLetterSequenceLength,
-                _minCapitalLetterDistance,
-                _mapper
-            );
+            EnsureOptionsCreated();
+            _suppressOptions.ForbiddenDuplicateChars = forbiddenDuplicateChars;
+            return this;
+        }
+
+        public PasswordPatternBuilder SetAdjacentDuplicateMaxLength(int? adjacentDuplicateMaxLength)
+        {
+            EnsureOptionsCreated();
+            _suppressOptions.AdjacentDuplicateMaxLength = adjacentDuplicateMaxLength;
+            return this;
+        }
+
+        public PasswordPatternBuilder SetCapitalAdjacentMaxLength(int? capitalAdjacentMaxLength)
+        {
+            EnsureOptionsCreated();
+            _suppressOptions.CapitalAdjacentMaxLength = capitalAdjacentMaxLength;
+            return this;
+        }
+
+        public PasswordPatternBuilder SetCapitalCharMinDistance(int? capitalCharMinDistance)
+        {
+            EnsureOptionsCreated();
+            _suppressOptions.CapitalCharMinDistance = capitalCharMinDistance;
+            return this;
+        }
+
+        private void EnsureOptionsCreated()
+        {
+            if (_suppressOptions == null)
+            {
+                _suppressOptions = new SuppressOptions();
+            }
         }
     }
 }
