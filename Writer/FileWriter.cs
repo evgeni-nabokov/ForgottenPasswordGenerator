@@ -7,7 +7,6 @@ namespace Writer
     public class FileWriter : IWriter
     {
         private const int BufferSizeInBytes = 10_000_000;
-        private readonly Stream _outputStream;
         private readonly StreamWriter _streamWriter;
 
         public Statistics Statistics { get; } = new Statistics();
@@ -16,8 +15,8 @@ namespace Writer
         public FileWriter(string outputFilename, int bufferSizeInBytes = BufferSizeInBytes)
         {
             Destination = outputFilename;
-            _outputStream = new FileStream(outputFilename, FileMode.Create);
-            _streamWriter = new StreamWriter(_outputStream, Encoding.UTF8, bufferSizeInBytes);
+            var outputStream = new FileStream(outputFilename, FileMode.Create);
+            _streamWriter = new StreamWriter(outputStream, Encoding.UTF8, bufferSizeInBytes);
         }
 
         public void Write(string variation)

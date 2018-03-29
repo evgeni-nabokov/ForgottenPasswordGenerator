@@ -12,7 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Lib\Lib.csproj" />
-    <ProjectReference Include="..\PasswordWriter\Writer.csproj" />
+    <ProjectReference Include="..\Writer\Writer.csproj" />
   </ItemGroup>
 
 </Project>
