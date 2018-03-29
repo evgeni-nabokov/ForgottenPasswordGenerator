@@ -4,12 +4,13 @@ using Cli.Params;
 using Cli.Yaml;
 using Lib.PasswordPattern;
 using Lib.PasswordPattern.Suppression;
+using Writer;
 
 namespace Cli
 {
     internal class Program
     {
-        private const string PasswordFileExtension = "pwd";
+        private const string PasswordFileExtension = "list";
         private const string StatisticsFileExtension = "stat";
         private const ulong ChunkSize = 500_000;
 
@@ -21,9 +22,7 @@ namespace Cli
             var directoryName = Path.GetDirectoryName(paramFilename);
             string outputFilename = string.Empty;
 
-
-            Stream outputStream = null;
-            TextWriter mainWriter;
+            IWriter writer;
 
             var patternParams = loader.Load(paramFilename);
 
@@ -37,14 +36,13 @@ namespace Cli
                     directoryName,
                     $"{filenameWithoutExtension}.{PasswordFileExtension}"
                 );
-                outputStream = new FileStream(outputFilename, FileMode.Create);
-                mainWriter = new StreamWriter(outputStream);
-                Console.WriteLine($"Write variations into the file {outputFilename}? (y/n)");
 
+                writer = new FileWriter(outputFilename);
+                Console.WriteLine($"Write variations into the file {outputFilename}? (y/n)");
             }
             else
             {
-                mainWriter = Console.Out;
+                writer = new ConsoleWriter();
                 Console.WriteLine("Write variations to console? (y/n)");
             }
 
@@ -57,11 +55,10 @@ namespace Cli
             var runningTotal = 0ul;
             ulong loopDiff;
             var lastLoopNumber = 0ul;
-
-
+            
             do
             {
-                mainWriter.WriteLine(passwordPattern.Current);
+                writer.Write(passwordPattern.Current);
                 loopDiff = passwordPattern.LoopNumber - lastLoopNumber;
 
                 if (loopDiff >= ChunkSize)
@@ -69,9 +66,11 @@ namespace Cli
                     runningTotal += loopDiff;
                     lastLoopNumber = passwordPattern.LoopNumber;
                     PrintProgress(runningTotal, totalCount);
-                    Console.CursorLeft = 0;
+                    
                 }
             } while (passwordPattern.MoveNext());
+
+            writer.Dispose();
 
             loopDiff = passwordPattern.LoopNumber - lastLoopNumber;
             if (loopDiff > 0)
@@ -79,29 +78,19 @@ namespace Cli
                 runningTotal += loopDiff;
                 PrintProgress(runningTotal, totalCount);
             }
-            
+
             Console.WriteLine();
 
-            if (patternParams.Output == OutputStream.File)
+            var statisticsFilePath = Path.Combine(
+                directoryName,
+                $"{filenameWithoutExtension}.{StatisticsFileExtension}");
+            WriteStatisticsIntoFile(writer.Statistics, statisticsFilePath);
+
+            if (patternParams.Output != OutputStream.File)
             {
-                mainWriter.Close();
-                outputStream?.Close();
-
-                var statisticsFilename = Path.Combine(
-                    directoryName,
-                    $"{filenameWithoutExtension}.{StatisticsFileExtension}"
-                );
-
-                using (var statFileStream = new FileStream(statisticsFilename, FileMode.Create))
-                using (var statWriter = new StreamWriter(statFileStream))
-                {
-                    statWriter.WriteLine(passwordPattern.CurrentNumber);
-                }
-
-
-                Console.WriteLine($"{passwordPattern.CurrentNumber:N0} variations saved into {outputFilename}.");
-                Console.WriteLine($"Statistics saved into {statisticsFilename}.");
+                Console.WriteLine($"Statistics saved into {statisticsFilePath}.");
             }
+            Console.WriteLine($"{writer.Statistics.Written:N0} of {writer.Statistics.Received:N0} variations saved into {writer.Destination}.");
 
             Console.WriteLine("Done.");
             Console.ReadKey();
@@ -109,7 +98,18 @@ namespace Cli
 
         private static void PrintProgress(ulong madeCount, ulong totalCount)
         {
+            Console.CursorLeft = 0;
             Console.Write("Progress: {0:N0} of {1:N0} ({2:N0}%)", madeCount, totalCount, (double)madeCount / totalCount * 100);
+        }
+
+        private static void WriteStatisticsIntoFile(Statistics statistics, string filePath)
+        {
+            using (var statFileStream = new FileStream(filePath, FileMode.Create))
+            using (var statWriter = new StreamWriter(statFileStream))
+            {
+                statWriter.WriteLine(statistics.Written);
+                statWriter.WriteLine(statistics.Received);
+            }
         }
 
         private static PasswordPattern CreatePasswordPatternFromParams(PatternParams patternParams)
