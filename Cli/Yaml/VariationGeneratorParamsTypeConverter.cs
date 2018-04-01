@@ -1,5 +1,5 @@
 ﻿using System;
-using Cli.Params;
+using Cli.Params.VariationGenerators;
 using YamlDotNet.Core;
 using YamlDotNet.Core.Events;
 using YamlDotNet.Serialization;
@@ -7,22 +7,22 @@ using YamlDotNet.Serialization.NamingConventions;
 
 namespace Cli.Yaml
 {
-    internal class SectionParamsTypeConverter : IYamlTypeConverter
+    internal class VariationGeneratorParamsTypeConverter : IYamlTypeConverter
     {
-        private static readonly Type SectionParamsBaseNodeType = typeof(SectionParamsBase);
+        private static readonly Type BaseNodeType = typeof(VariationGeneratorParamsBase);
         private static readonly Type EndType = typeof(MappingEnd);
 
         public bool Accepts(Type type)
         {
-            return type == SectionParamsBaseNodeType;
+            return type == BaseNodeType;
         }
 
         public object ReadYaml(IParser parser, Type type)
         {
-            SectionParamsBase result;
+            VariationGeneratorParamsBase result;
             parser.Accept<MappingStart>();
 
-            var sectionDeserializer = new DeserializerBuilder()
+            var deserializer = new DeserializerBuilder()
                 .WithNamingConvention(new CamelCaseNamingConvention())
                 .IgnoreUnmatchedProperties()
                 .Build();
@@ -30,25 +30,27 @@ namespace Cli.Yaml
             do
             {
                 parser.MoveNext();
-                var sectionName = GetScalarValue(parser);
-                switch (sectionName.ToUpper())
+                var generatorName = YamlParamLoader.GetScalarValue(parser);
+                switch (generatorName.ToUpper())
                 {
                     case "FIXED":
-                        result = sectionDeserializer.Deserialize<FixedSectionParams>(parser);
+                        result = deserializer.Deserialize<FixedVariationGeneratorParams>(parser);
                         break;
                     case "STRINGLIST":
-                        var stringList = sectionDeserializer.Deserialize<string[]>(parser);
-                        result = new StringListSectionParams { StringList = stringList };
+                        var stringList = deserializer.Deserialize<string[]>(parser);
+                        result = new StringListVariationGeneratorParams { StringList = stringList };
                         break;
                     case "NUMBERRANGE":
-                        result = sectionDeserializer.Deserialize<NumberRangeSectionParams>(parser);
+                        result = deserializer.Deserialize<NumberRangeVariationGeneratorParams>(parser);
                         break;
                     case "COMPOUND":
-                        result = sectionDeserializer.Deserialize<CompoundSectionParams>(parser);
+                        result = deserializer.Deserialize<CompoundVariationGeneratorParams>(parser);
+                        break;
+                    case "ARBITRARY":
+                        result = deserializer.Deserialize<ArbitraryVariationGeneratorParams>(parser);
                         break;
                     default:
-                        result = sectionDeserializer.Deserialize<ArbitrarySectionParams>(parser);
-                        break;
+                        throw new YamlException($"Unknown generator: {generatorName}.");
                 }
             } while (parser.Current.GetType() != EndType);
             parser.MoveNext();
@@ -58,12 +60,6 @@ namespace Cli.Yaml
         public void WriteYaml(IEmitter emitter, object value, Type type)
         {
             throw new NotImplementedException();
-        }
-
-        private string GetScalarValue(IParser parser)
-        {
-            var scalar = parser.Expect<Scalar>();
-            return scalar?.Value;
         }
     }
 }

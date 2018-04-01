@@ -1,27 +1,37 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using Lib.CharMappers;
 using Lib.CharsetGenerators;
+using Lib.Suppressors;
 
-namespace Lib.PasswordSections
+namespace Lib.VariationGenerators
 {
-    public sealed class ArbitraryPasswordSection : 
-        IPasswordSection
+    public sealed class ArbitraryVariationGenerator : VariationGeneratorBase
     {
-        public ArbitraryPasswordSection(
+        public ArbitraryVariationGenerator(
             string chars,
+            int minLength,
             int maxLength,
-            int? minLength = null,
-            CharCase charCase = CharCase.AsDefined)
+            CharCase charCase = CharCase.AsDefined,
+            IList<ISuppressor> suppressors = null,
+            ICharMapper mapper = null)
+                : base(suppressors, mapper)
         {
+            if (string.IsNullOrEmpty(chars))
+            {
+                throw new ArgumentNullException(nameof(chars), $"Empty parameter: {nameof(chars)}.");
+            }
             OriginalChars = chars;
             MaxLength = maxLength < 1 ? 1 : maxLength;
             MinLength = NormalizeMinLength(minLength);
             CharCase = charCase;
 
-            BuildGenerator();
+            BuildCharsetGenerator();
             BuildChars();
+
+            LoopCount = GetLoopCount();
+
             Reset();
         }
 
@@ -37,35 +47,19 @@ namespace Lib.PasswordSections
 
         public CharCase CharCase { get; set; }
 
-        public ulong Count
+        protected override string BuildVariation()
         {
-            get
+            var result = new StringBuilder(_currentLength);
+
+            for (uint i = 0; i < _currentLength; i++)
             {
-                var result = 0ul;
-                for (var i = MinLength; i <= MaxLength; i++)
-                {
-                    result += (ulong) Math.Pow(Size, i);
-                }
-                return result;
+                result.Append(Chars[_permutationState[i]]);
             }
+
+            return result.ToString();
         }
 
-        public string Current
-        {
-            get
-            {
-                var result = new StringBuilder(_currentLength);
-
-                for (uint i = 0; i < _currentLength; i++)
-                {
-                    result.Append(Chars[_permutationState[i]]);
-                }
-
-                return result.ToString();
-            }
-        }
-
-        public bool MoveNext()
+        protected override bool GoToNextState()
         {
             for (var i = 0; i < _currentLength; i++)
             {
@@ -87,33 +81,19 @@ namespace Lib.PasswordSections
             return false;
         }
 
-        public void Reset()
+        public override void Reset()
         {
             _currentLength = MinLength;
             _permutationState = new int[_currentLength];
+            base.Reset();
         }
-
-        public IEnumerable<string> GetVariations()
-        {
-            do
-            {
-                yield return Current;
-
-            } while (MoveNext());
-        }
-
-        public void Dispose()
-        {
-        }
-
-        object IEnumerator.Current => Current;
 
         private void BuildChars()
         {
             Chars = _charSetGenerator.GenerateCharset(OriginalChars);
         }
 
-        private void BuildGenerator()
+        private void BuildCharsetGenerator()
         {
             var builder = new CharsetGeneratorBuilder();
 
@@ -135,10 +115,19 @@ namespace Lib.PasswordSections
             _charSetGenerator = builder.Build();
         }
 
-        private int NormalizeMinLength(int? minLength)
+        private int NormalizeMinLength(int minLength)
         {
-            var result = minLength ?? 0;
-            return Math.Min(Math.Max(0, result), MaxLength);
+            return Math.Min(Math.Max(0, minLength), MaxLength);
+        }
+
+        private ulong GetLoopCount()
+        {
+            var result = 0ul;
+            for (var i = MinLength; i <= MaxLength; i++)
+            {
+                result += (ulong)Math.Pow(Size, i);
+            }
+            return result;
         }
 
         private ICharsetGenerator _charSetGenerator;

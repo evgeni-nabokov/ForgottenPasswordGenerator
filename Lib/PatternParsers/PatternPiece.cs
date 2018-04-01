@@ -1,4 +1,4 @@
-﻿namespace Lib.PatternParser
+﻿namespace Lib.PatternParsers
 {
     internal struct PatternPiece
     {

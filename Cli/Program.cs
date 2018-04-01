@@ -1,9 +1,10 @@
 ﻿using System;
 using System.IO;
 using Cli.Params;
+using Cli.Params.Suppressors;
 using Cli.Yaml;
-using Lib.PasswordPattern;
-using Lib.PasswordPattern.Suppression;
+using Lib.Suppressors;
+using Lib.VariationGenerators;
 using Writer;
 
 namespace Cli
@@ -24,13 +25,14 @@ namespace Cli
 
             IWriter writer;
 
-            var patternParams = loader.Load(paramFilename);
+            var programParams = loader.Load(paramFilename);
 
-            var passwordPattern = CreatePasswordPatternFromParams(patternParams);
-            var totalCount = passwordPattern.Count;
-            Console.WriteLine($"Loops total: {totalCount:N0}");
+            var generator = VariationGeneratorFactory.CreateVariationGeneratorFromParams(programParams);
 
-            if (patternParams.Output == OutputStream.File)
+            var totalCount = generator.LoopCount;
+            Console.WriteLine($"Loop count: {totalCount:N0}");
+
+            if (programParams.Output == OutputStream.File)
             {
                 outputFilename = Path.Combine(
                     directoryName,
@@ -55,24 +57,24 @@ namespace Cli
             var runningTotal = 0ul;
             ulong loopDiff;
             var lastLoopNumber = 0ul;
-            
+
             do
             {
-                writer.Write(passwordPattern.Current);
-                loopDiff = passwordPattern.LoopNumber - lastLoopNumber;
+                writer.Write(generator.Current);
+                loopDiff = generator.LoopNumber - lastLoopNumber;
 
                 if (loopDiff >= ChunkSize)
                 {
                     runningTotal += loopDiff;
-                    lastLoopNumber = passwordPattern.LoopNumber;
+                    lastLoopNumber = generator.LoopNumber;
                     PrintProgress(runningTotal, totalCount);
-                    
+
                 }
-            } while (passwordPattern.MoveNext());
+            } while (generator.MoveNext());
 
             writer.Dispose();
 
-            loopDiff = passwordPattern.LoopNumber - lastLoopNumber;
+            loopDiff = generator.LoopNumber - lastLoopNumber;
             if (loopDiff > 0)
             {
                 runningTotal += loopDiff;
@@ -86,11 +88,12 @@ namespace Cli
                 $"{filenameWithoutExtension}.{StatisticsFileExtension}");
             WriteStatisticsIntoFile(writer.Statistics, statisticsFilePath);
 
-            if (patternParams.Output != OutputStream.File)
+            if (programParams.Output != OutputStream.File)
             {
                 Console.WriteLine($"Statistics saved into {statisticsFilePath}.");
             }
-            Console.WriteLine($"{writer.Statistics.Written:N0} of {writer.Statistics.Received:N0} variations saved into {writer.Destination}.");
+            Console.WriteLine(
+                $"{writer.Statistics.Written:N0} of {writer.Statistics.Received:N0} variations saved into {writer.Destination}.");
 
             Console.WriteLine("Done.");
             Console.ReadKey();
@@ -99,7 +102,8 @@ namespace Cli
         private static void PrintProgress(ulong madeCount, ulong totalCount)
         {
             Console.CursorLeft = 0;
-            Console.Write("Progress: {0:N0} of {1:N0} ({2:N0}%)", madeCount, totalCount, (double)madeCount / totalCount * 100);
+            Console.Write("Progress: {0:N0} of {1:N0} ({2:N0}%)", madeCount, totalCount,
+                (double) madeCount / totalCount * 100);
         }
 
         private static void WriteStatisticsIntoFile(Statistics statistics, string filePath)
@@ -110,74 +114,6 @@ namespace Cli
                 statWriter.WriteLine(statistics.Written);
                 statWriter.WriteLine(statistics.Received);
             }
-        }
-
-        private static PasswordPattern CreatePasswordPatternFromParams(PatternParams patternParams)
-        {
-            var passwordPatternBuilder = new PasswordPatternBuilder()
-                .SetCharMapper(CharMapperFactory.CreateCharMapper(patternParams.CharMapper));
-
-            if (patternParams.Suppression != null)
-            {
-                var sup = patternParams.Suppression;
-                passwordPatternBuilder.SetSuppressOptions(new SuppressOptions(
-                    sup.ForbiddenDuplicateChars,
-                    sup.AdjacentDuplicateMaxLength,
-                    sup.CapitalAdjacentMaxLength,
-                    sup.CapitalCharMinDistance,
-                    sup.Regex
-                ));
-            }
-
-            for (var i = 0; i < patternParams.Sections.Length; i++)
-            {
-                var sectionParams = patternParams.Sections[i];
-                if (sectionParams is FixedSectionParams)
-                {
-                    var p = sectionParams as FixedSectionParams;
-                    passwordPatternBuilder.AddFixedPasswordSection(
-                        p.Chars,
-                        p.MinLength,
-                        p.CharCase
-                    );
-                }
-                else if (sectionParams is StringListSectionParams)
-                {
-                    var p = sectionParams as StringListSectionParams;
-                    passwordPatternBuilder.AddStringListPasswordSection(
-                        p.StringList
-                    );
-                }
-                else if (sectionParams is NumberRangeSectionParams)
-                {
-                    var p = sectionParams as NumberRangeSectionParams;
-                    passwordPatternBuilder.AddNumberRangePasswordSection(
-                        p.MinValue,
-                        p.MaxValue,
-                        p.Step
-                    );
-                }
-                else if (sectionParams is CompoundSectionParams)
-                {
-                    var p = sectionParams as CompoundSectionParams;
-                    passwordPatternBuilder.AddCompoundPasswordSection(
-                        p.Chars,
-                        p.CharCase
-                    );
-                }
-                else if (sectionParams is ArbitrarySectionParams)
-                {
-                    var p = sectionParams as ArbitrarySectionParams;
-                    passwordPatternBuilder.AddArbitraryPasswordSection(
-                        p.Chars,
-                        p.MaxLength,
-                        p.MinLength,
-                        p.CharCase
-                    );
-                }
-            }
-
-            return passwordPatternBuilder.Build();
         }
     }
 }

@@ -1,22 +1,34 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using Lib.CharMappers;
+using Lib.Suppressors;
 
-namespace Lib.PasswordSections
+namespace Lib.VariationGenerators
 {
-    public sealed class FixedPasswordSection : IPasswordSection
+    public sealed class FixedVariationGenerator : VariationGeneratorBase
     {
-        public FixedPasswordSection(
+        public FixedVariationGenerator(
             string chars,
             int? minLength = null,
-            CharCase charCase = CharCase.AsDefined)
+            CharCase charCase = CharCase.AsDefined,
+            IList<ISuppressor> suppressors = null,
+            ICharMapper mapper = null)
+            : base(suppressors, mapper)
         {
+            if (string.IsNullOrEmpty(chars))
+            {
+                throw new ArgumentNullException(nameof(chars), $"Empty parameter: {nameof(chars)}");
+            }
+
             OriginalChars = chars;
             MinLength = NormalizeMinLength(minLength);
             CharCase = charCase;
 
             BuildChars();
+            Reset();
+
+            LoopCount = GetLoopCount();
         }
 
         public int MaxLength => OriginalChars.Length;
@@ -27,50 +39,19 @@ namespace Lib.PasswordSections
 
         public CharCase CharCase { get; }
 
-        public ulong Count
+        protected override string BuildVariation()
         {
-            get
-            {
-                var result = 0ul;
-                for (var i = MinLength; i <= MaxLength; i++)
-                {
-                    var currentLengthCount = 1ul;
-                    for (var j = 0; j < i; j++)
-                    {
-                        currentLengthCount *= (ulong) _chars[j].Length;
-                    }
-                    result += currentLengthCount;
-                }
+            var result = new StringBuilder(_currentLength);
 
-                return result;
+            for (var i = 0; i < _currentLength; i++)
+            {
+                result.Append(_chars[i][_permutationState[i]]);
             }
+
+            return result.ToString();
         }
 
-        public IEnumerable<string> GetVariations()
-        {
-            do
-            {
-                yield return Current;
-
-            } while (MoveNext());
-        }
-
-        public string Current
-        {
-            get
-            {
-                var builder = new StringBuilder(_currentLength);
-
-                for (var i = 0; i < _currentLength; i++)
-                {
-                    builder.Append(_chars[i][_permutationState[i]]);
-                }
-
-                return builder.ToString();
-            }
-        }
-
-        public bool MoveNext()
+        protected override bool GoToNextState()
         {
             for (var i = 0; i < _currentLength; i++)
             {
@@ -92,28 +73,15 @@ namespace Lib.PasswordSections
             return false;
         }
 
-        public void Reset()
+        public override void Reset()
         {
             _currentLength = MinLength;
             _permutationState = new int[_currentLength];
+            base.Reset();
         }
-
-        public void Dispose()
-        {
-        }
-
-        object IEnumerator.Current => Current;
 
         private void BuildChars()
         {
-            Reset();
-
-            if (OriginalChars.Length == 0)
-            {
-                _chars = new char[0][];
-                return;
-            }
-
             _chars = new char[OriginalChars.Length][];
             var placeIndex = 0;
             foreach (var c in OriginalChars)
@@ -143,8 +111,24 @@ namespace Lib.PasswordSections
 
         private int NormalizeMinLength(int? minLength)
         {
-            var result = minLength ?? MaxLength;
-            return Math.Min(Math.Max(0, result), MaxLength);
+            minLength = minLength ?? MaxLength;
+            return Math.Min(Math.Max(0, minLength.Value), MaxLength);
+        }
+
+        private ulong GetLoopCount()
+        {
+            var result = 0ul;
+            for (var i = MinLength; i <= MaxLength; i++)
+            {
+                var currentLengthCount = 1ul;
+                for (var j = 0; j < i; j++)
+                {
+                    currentLengthCount *= (ulong)_chars[j].Length;
+                }
+                result += currentLengthCount;
+            }
+
+            return result;
         }
 
         private char[][] _chars;

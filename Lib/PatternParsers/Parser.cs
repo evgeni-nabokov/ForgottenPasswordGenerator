@@ -1,11 +1,37 @@
 ﻿using System.Collections.Generic;
 using System.Text;
+using Lib.VariationGenerators;
 
-namespace Lib.PatternParser
+namespace Lib.PatternParsers
 {
-    internal static class Parser
+    internal static class PatternParser
     {
-        public static IList<PatternPiece> SplitIntoPieces(string pattern)
+        public static IVariationGenerator Parse(string pattern)
+        {
+            var pieces = SplitIntoPieces(pattern);
+            var generators = new List<IVariationGenerator>(pieces.Count);
+            for (var i = 0; i < pieces.Count; i++)
+            {
+                var p = pieces[i];
+                if (p.Type == PatternPieceType.PlainString)
+                {
+                    generators.Add(new FixedVariationGenerator(p.Content));
+                }
+                else
+                {
+                    generators.Add(new StringListVariationGenerator(SplitIntoElements(p.Content)));
+                }
+            }
+
+            if (generators.Count > 1)
+            {
+                return new CompoundVariationGenerator(generators);
+            }
+
+            return generators.Count == 1 ? generators[0] : null;
+        }
+
+        internal static IList<PatternPiece> SplitIntoPieces(string pattern)
         {
             var result = new List<PatternPiece>(pattern.Length);
 
@@ -79,7 +105,7 @@ namespace Lib.PatternParser
             return CombineAdjacentPlainTextPieces(result);
         }
 
-        public static IList<string> SplitIntoElements(string content)
+        internal static IList<string> SplitIntoElements(string content)
         {
             var result = new List<string>(content.Length);
 

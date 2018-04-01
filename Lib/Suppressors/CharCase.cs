@@ -1,9 +1,7 @@
-﻿namespace Lib
+﻿namespace Lib.Suppressors
 {
     public enum CharCase
     {
-        AsDefined,
-        UpperAndLower,
         Upper,
         Lower
     }
