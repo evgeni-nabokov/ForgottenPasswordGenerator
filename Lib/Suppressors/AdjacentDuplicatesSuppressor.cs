@@ -31,11 +31,11 @@ namespace Lib.Suppressors
             var seqLen = 1;
             for (var i = 1; i < variation.Length; i++)
             {
-                var curcChar = variation[i];
+                var currChar = variation[i];
                 var prevChar = variation[i - 1];
-                if (IsTrackedChar(curcChar) && IsTrackedChar(prevChar))
+                if (IsTrackedChar(currChar) && IsTrackedChar(prevChar))
                 {
-                    if (CharsAreEqual(curcChar, prevChar))
+                    if (CharsAreEqual(currChar, prevChar))
                     {
                         seqLen++;
                         if (seqLen > MaxLength)

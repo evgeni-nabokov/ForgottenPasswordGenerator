@@ -84,24 +84,24 @@ namespace Test
             Assert.Equal(expected.ToString(), actual);
         }
 
-        //[Fact]
-        //public void SameCaseSpacingTest()
-        //{
-        //    var supressor = new SameCaseSpacingSuppressor(1, 1);
-        //    var generator = new FixedVariationGenerator("abcd", null,
-        //        CharCase.UpperAndLower, new List<ISuppressor> { supressor });
+        [Fact]
+        public void SameCaseSpacingTest()
+        {
+            var supressor = new SameCaseSpacingSuppressor(1, 1);
+            var generator = new FixedVariationGenerator("abcd", null,
+                CharCase.UpperAndLower, new List<ISuppressor> { supressor });
 
-        //    var actual = generator.GetVariationsString();
-        //    var expected = new StringBuilder();
-        //    expected.AppendLine("abcd");
-        //    expected.AppendLine("Abcd");
-        //    expected.AppendLine("aBcd");
-        //    expected.AppendLine("abCd");
-        //    expected.AppendLine("AbCd");
-        //    expected.AppendLine("abcD");
-        //    expected.AppendLine("aBcD");
-        //    Assert.Equal(expected.ToString(), actual);
-        //}
+            var actual = generator.GetVariationsString();
+            var expected = new StringBuilder();
+            expected.AppendLine("abcd");
+            expected.AppendLine("Abcd");
+            expected.AppendLine("aBcd");
+            expected.AppendLine("abCd");
+            expected.AppendLine("AbCd");
+            expected.AppendLine("abcD");
+            expected.AppendLine("aBcD");
+            Assert.Equal(expected.ToString(), actual);
+        }
 
         [Fact]
         public void RussianCharMapperStringTest()
