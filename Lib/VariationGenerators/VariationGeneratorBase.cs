@@ -39,35 +39,25 @@ namespace Lib.VariationGenerators
 
         public bool MoveNext()
         {
-            var result = MoveNextInternal(out var passedLoops);
-            LoopNumber += passedLoops;
-            if (result)
-            {
-                VariationNumber++;
-            }
-            return result;
-        }
-
-        protected virtual bool MoveNextInternal(out ulong passedLoops)
-        {
             while (true)
             {
-                if (GoToNextState())
+                if (GoToNextState(out var passedLoops))
                 {
-                    passedLoops = 1;
+                    LoopNumber += passedLoops;
                     var variation = GetCurrentVariation();
                     if (!BreaksRestrictionsInternal(variation))
                     {
                         Variation = variation;
+                        VariationNumber++;
                         return true;
                     }
                 }
                 else
                 {
-                    passedLoops = 0;
                     return false;
                 }
             }
+
         }
 
         public bool BreaksRestrictions(string variation)
@@ -103,22 +93,25 @@ namespace Lib.VariationGenerators
         protected void MoveToFirstVariation()
         {
             LoopNumber = 1;
-            Variation = GetCurrentVariation();
-            while (BreaksRestrictionsInternal(Variation))
+            while (true)
             {
-                if (!GoToNextState())
+                var variation = GetCurrentVariation();
+                if (BreaksRestrictionsInternal(variation))
                 {
-                    throw new Exception("There are no variations.");
-                }
-                {
-                    Variation = GetCurrentVariation();
+                    if (!GoToNextState(out var passedLoops))
+                    {
+                        throw new Exception("There are no variations.");
+                    }
+                    LoopNumber += passedLoops;
+                } else {
+                    VariationNumber = 1;
+                    Variation = variation;
                     break;
                 }
             }
-            VariationNumber = 1;
         }
 
-        protected abstract bool GoToNextState();
+        protected abstract bool GoToNextState(out ulong passedLoops);
 
         protected abstract string BuildVariation();
 

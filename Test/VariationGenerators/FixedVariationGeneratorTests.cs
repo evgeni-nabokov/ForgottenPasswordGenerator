@@ -6,7 +6,7 @@ using Lib.VariationGenerators;
 using Xunit;
 using CharCase = Lib.VariationGenerators.CharCase;
 
-namespace Test
+namespace Test.VariationGenerators
 {
     public class FixedVariationGeneratorTests
     {
@@ -26,7 +26,7 @@ namespace Test
         }
 
         [Fact]
-        public void VariableLengthUpperAndLowerVariationsStringTest()
+        public void VariableLengthUpperAndLowerTest()
         {
             var generator = new FixedVariationGenerator("ab", 0, CharCase.UpperAndLower);
 
@@ -41,36 +41,16 @@ namespace Test
             expected.AppendLine("AB");
 
             Assert.Equal(expected.ToString(), actual);
-        }
-
-        [Fact]
-        public void VariableLengthVariationLoopCountTest()
-        {
-            var generator = new FixedVariationGenerator("ab", 0, CharCase.UpperAndLower);
-
-            var actual = generator.LoopCount;
-            const ulong expected = 7ul;
-
-            Assert.Equal(expected, actual);
-        }
-
-        [Fact]
-        public void VariableLengthVariationNumberTest()
-        {
-            var generator = new FixedVariationGenerator("ab", 0, CharCase.UpperAndLower);
-
-            const ulong expected = 7ul;
-            var variants = generator.GetVariationsString();
-
-            Assert.Equal(expected, generator.VariationNumber);
-            Assert.Equal(expected, generator.LoopNumber);
+            Assert.Equal<ulong>(7, generator.VariationNumber);
+            Assert.Equal<ulong>(7, generator.LoopNumber);
+            Assert.Equal<ulong>(7, generator.LoopCount);
         }
 
         [Fact]
         public void SameCaseDuplicatesTest()
         {
             var supressor = new AdjacentSameCaseSuppressor();
-            var generator = new FixedVariationGenerator("abc", 3,
+            var generator = new FixedVariationGenerator("abc", null,
                 CharCase.UpperAndLower, new List<ISuppressor> { supressor });
 
             var actual = generator.GetVariationsString();
@@ -82,6 +62,9 @@ namespace Test
             expected.AppendLine("AbC");
 
             Assert.Equal(expected.ToString(), actual);
+            Assert.Equal<ulong>(5, generator.VariationNumber);
+            Assert.Equal<ulong>(8, generator.LoopNumber);
+            Assert.Equal<ulong>(8, generator.LoopCount);
         }
 
         [Fact]
@@ -101,6 +84,9 @@ namespace Test
             expected.AppendLine("abcD");
             expected.AppendLine("aBcD");
             Assert.Equal(expected.ToString(), actual);
+            Assert.Equal<ulong>(7, generator.VariationNumber);
+            Assert.Equal<ulong>(16, generator.LoopNumber);
+            Assert.Equal<ulong>(16, generator.LoopCount);
         }
 
         [Fact]
@@ -114,6 +100,9 @@ namespace Test
             expected.AppendLine("qwertyuiop[]asdfghjkl;'zxcvbnm,.`QWERTYUIOP{}ASDFGHJKL:\"ZXCVBNM<>~");
 
             Assert.Equal(expected.ToString(), actual);
+            Assert.Equal<ulong>(1, generator.VariationNumber);
+            Assert.Equal<ulong>(1, generator.LoopNumber);
+            Assert.Equal<ulong>(1, generator.LoopCount);
         }
     }
 }

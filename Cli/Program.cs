@@ -21,7 +21,6 @@ namespace Cli
             var paramFilename = args[0];
             var filenameWithoutExtension = Path.GetFileNameWithoutExtension(paramFilename);
             var directoryName = Path.GetDirectoryName(paramFilename);
-            string outputFilename = string.Empty;
 
             IWriter writer;
 
@@ -34,7 +33,7 @@ namespace Cli
 
             if (programParams.Output == OutputStream.File)
             {
-                outputFilename = Path.Combine(
+                var outputFilename = Path.Combine(
                     directoryName,
                     $"{filenameWithoutExtension}.{PasswordFileExtension}"
                 );

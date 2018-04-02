@@ -1,11 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Text;
-using Lib.Suppressors;
+﻿using System.Text;
 using Lib.VariationGenerators;
 using Xunit;
-using CharCase = Lib.VariationGenerators.CharCase;
 
-namespace Test
+namespace Test.VariationGenerators
 {
     public class NumberRangeVariationGeneratorTests
     {
@@ -22,7 +19,11 @@ namespace Test
             expected.AppendLine("0");
             expected.AppendLine("1");
             expected.AppendLine("2");
+
             Assert.Equal(expected.ToString(), actual);
+            Assert.Equal<ulong>(5, generator.VariationNumber);
+            Assert.Equal<ulong>(5, generator.LoopNumber);
+            Assert.Equal<ulong>(5, generator.LoopCount);
         }
     }
 }

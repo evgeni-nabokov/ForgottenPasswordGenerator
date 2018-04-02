@@ -5,7 +5,7 @@ using Lib.VariationGenerators;
 using Xunit;
 using CharCase = Lib.VariationGenerators.CharCase;
 
-namespace Test
+namespace Test.VariationGenerators
 {
     public class ArbitraryVariationGeneratorTests
     {
@@ -22,6 +22,9 @@ namespace Test
             expected.AppendLine("11");
 
             Assert.Equal(expected.ToString(), actual);
+            Assert.Equal<ulong>(4, generator.VariationNumber);
+            Assert.Equal<ulong>(4, generator.LoopNumber);
+            Assert.Equal<ulong>(4, generator.LoopCount);
         }
 
         [Fact]
@@ -40,6 +43,9 @@ namespace Test
             expected.AppendLine("11");
 
             Assert.Equal(expected.ToString(), actual);
+            Assert.Equal<ulong>(7, generator.VariationNumber);
+            Assert.Equal<ulong>(7, generator.LoopNumber);
+            Assert.Equal<ulong>(7, generator.LoopCount);
         }
 
         [Fact]
@@ -55,6 +61,9 @@ namespace Test
             expected.AppendLine("01");
 
             Assert.Equal(expected.ToString(), actual);
+            Assert.Equal<ulong>(2, generator.VariationNumber);
+            Assert.Equal<ulong>(4, generator.LoopNumber);
+            Assert.Equal<ulong>(4, generator.LoopCount);
         }
 
         [Fact]
@@ -73,6 +82,9 @@ namespace Test
             expected.AppendLine("01");
 
             Assert.Equal(expected.ToString(), actual);
+            Assert.Equal<ulong>(5, generator.VariationNumber);
+            Assert.Equal<ulong>(7, generator.LoopNumber);
+            Assert.Equal<ulong>(7, generator.LoopCount);
         }
     }
 }

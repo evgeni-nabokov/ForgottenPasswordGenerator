@@ -19,9 +19,9 @@ namespace Lib.VariationGenerators
             MinValue = minValue;
             MaxValue = maxValue;
             Step = step <= 0 ? 1 : step;
-            Format = format;
+            Format = format ?? "N0";
 
-            LoopCount = (ulong)Math.Floor((MaxValue - MinValue) / (double)Step);
+            LoopCount = 1 + (ulong)Math.Floor((MaxValue - MinValue) / (double)Step);
 
             Reset();
         }
@@ -34,12 +34,14 @@ namespace Lib.VariationGenerators
 
         public string Format { get; }
 
-        protected override bool GoToNextState()
+        protected override bool GoToNextState(out ulong passedLoops)
         {
             if (_currentNumber + Step > MaxValue)
             {
+                passedLoops = 0;
                 return false;
             }
+            passedLoops = 1;
             _currentNumber += Step;
             return true;
         }

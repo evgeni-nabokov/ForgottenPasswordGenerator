@@ -51,13 +51,14 @@ namespace Lib.VariationGenerators
             return result.ToString();
         }
 
-        protected override bool GoToNextState()
+        protected override bool GoToNextState(out ulong passedLoops)
         {
             for (var i = 0; i < _currentLength; i++)
             {
                 if (_permutationState[i] < _chars[i].Length - 1)
                 {
                     _permutationState[i] += 1;
+                    passedLoops = 1;
                     return true;
                 }
                 _permutationState[i] = 0;
@@ -67,9 +68,11 @@ namespace Lib.VariationGenerators
             {
                 _currentLength++;
                 _permutationState = new int[_currentLength];
+                passedLoops = 1;
                 return true;
             }
 
+            passedLoops = 0;
             return false;
         }
 

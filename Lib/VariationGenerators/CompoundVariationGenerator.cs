@@ -55,39 +55,41 @@ namespace Lib.VariationGenerators
             return result.ToString();
         }
 
-        protected override bool MoveNextInternal(out ulong passedLoops)
+        //protected override bool MoveNextInternal(out ulong passedLoops)
+        //{
+        //    passedLoops = 0;
+        //    while (true)
+        //    {
+        //        var prevLoopNumber = LoopNumber;
+        //        var moved = GoToNextState();
+        //        passedLoops += LoopNumber - prevLoopNumber;
+        //        if (moved)
+        //        {
+        //            var variation = MapCharactersInternal(BuildVariation());
+        //            if (!BreaksRestrictionsInternal(variation))
+        //            {
+        //                Variation = variation;
+        //                return true;
+        //            }
+        //        }
+        //        else
+        //        {
+        //            return false;
+        //        }
+        //    }
+        //}
+
+        protected override bool GoToNextState(out ulong passedLoops)
         {
             passedLoops = 0;
-            while (true)
-            {
-                var prevLoopNumber = LoopNumber;
-                var moved = GoToNextState();
-                passedLoops += LoopNumber - prevLoopNumber;
-                if (moved)
-                {
-                    var variation = MapCharactersInternal(BuildVariation());
-                    if (!BreaksRestrictionsInternal(variation))
-                    {
-                        Variation = variation;
-                        return true;
-                    }
-                }
-                else
-                {
-                    return false;
-                }
-            }
-        }
 
-        protected override bool GoToNextState()
-        {
             for (var i = 0; i < VariationGenerators.Count; i++)
             {
                 var g = VariationGenerators[i];
                 var prevLoopNumber = g.LoopNumber;
                 if (g.MoveNext())
                 {
-                    LoopNumber += g.LoopNumber - prevLoopNumber;
+                    passedLoops += g.LoopNumber - prevLoopNumber;
                     return true;
                 }
                 VariationGenerators[i].Reset();

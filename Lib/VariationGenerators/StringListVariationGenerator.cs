@@ -22,14 +22,17 @@ namespace Lib.VariationGenerators
 
         public IReadOnlyList<string> StringList { get; }
 
-        protected override bool GoToNextState()
+        protected override bool GoToNextState(out ulong passedLoops)
         {
-            if (_currentIndex + 1 >= StringList.Count)
+            if (_currentIndex + 1 < StringList.Count)
             {
-                return false;
+                _currentIndex++;
+                passedLoops = 1;
+                return true;
             }
-            _currentIndex++;
-            return true;
+ 
+            passedLoops = 0;
+            return false;
         }
 
         protected override string BuildVariation()

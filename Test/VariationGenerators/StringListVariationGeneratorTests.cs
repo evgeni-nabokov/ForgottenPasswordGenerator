@@ -3,7 +3,7 @@ using System.Text;
 using Lib.VariationGenerators;
 using Xunit;
 
-namespace Test
+namespace Test.VariationGenerators
 {
     public class StringListVariationGeneratorTests
     {
@@ -19,6 +19,9 @@ namespace Test
             expected.AppendLine("mouse");
 
             Assert.Equal(expected.ToString(), actual);
+            Assert.Equal<ulong>(3, generator.VariationNumber);
+            Assert.Equal<ulong>(3, generator.LoopNumber);
+            Assert.Equal<ulong>(3, generator.LoopCount);
         }
     }
 }

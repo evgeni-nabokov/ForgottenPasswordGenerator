@@ -56,7 +56,7 @@ namespace Test.Supressors
         }
 
         [Fact]
-        public void MaxLengthDifferentCaseCaseInsensitiveNoBreakTest()
+        public void MaxLengthDifferentCaseCaseInsensitiveNotBreaksTest()
         {
             var supressor = new AdjacentDuplicatesSuppressor(1, 2);
 
@@ -66,23 +66,24 @@ namespace Test.Supressors
         }
 
         [Fact]
-        public void SameTrackingCharDifferentCaseCaseInsensitiveTest()
+        public void TrackingCharDifferentCaseCaseInsensitiveTest()
         {
-            var supressor = new AdjacentDuplicatesSuppressor(1, 1, "b");
+            var supressor = new AdjacentDuplicatesSuppressor(1, 1, "bC");
 
-            var actual = supressor.BreaksRestrictions("abBc");
+            var actual = supressor.BreaksRestrictions("aabBc");
 
             Assert.True(actual);
         }
 
         [Fact]
-        public void DifferentTrackingCharDifferentCaseCaseInsensitiveNoBreakTest()
+        public void DifferentTrackingCharDifferentCaseCaseInsensitiveNotBreaksTest()
         {
-            var supressor = new AdjacentDuplicatesSuppressor(1, 1, "a");
+            var supressor = new AdjacentDuplicatesSuppressor(1, 1, "ac");
 
             var actual = supressor.BreaksRestrictions("abBc");
 
             Assert.False(actual);
         }
+
     }
 }
