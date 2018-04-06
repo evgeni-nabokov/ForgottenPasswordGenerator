@@ -6,13 +6,13 @@ namespace Lib.Suppressors
     {
         public int MinLength => MinInternal;
 
-        public int MaxLength => MaxInternal;
+        public int? MaxLength => MaxInternal;
 
         public CharCase TrackedCharCase => TrackedCharCaseInternal;
 
         public AdjacentSameCaseSuppressor(
             int minLength = 0,
-            int maxLength = 1,
+            int? maxLength = 1,
             string trackedChars = null,
             CharCase trackedCharCase = CharCase.Upper)
             : base(minLength, maxLength, trackedChars, trackedCharCase, true)
@@ -28,7 +28,7 @@ namespace Lib.Suppressors
                 if (HasTrackedCase(c) && IsTrackedChar(c))
                 {
                     seqLen++;
-                    if (seqLen > MaxLength)
+                    if (MaxLength.HasValue && seqLen > MaxLength.Value)
                     {
                         return true;
                     }

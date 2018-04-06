@@ -4,7 +4,7 @@
     {
         public int MinLength => MinInternal;
 
-        public int MaxLength => MaxInternal;
+        public int? MaxLength => MaxInternal;
 
         public bool IgnoreCase => IgnoreCaseInternal;
 
@@ -12,7 +12,7 @@
 
         public AdjacentDuplicatesSuppressor(
             int minLength = 1,
-            int maxLength = 1,
+            int? maxLength = 1,
             string trackedChars = null,
             bool ignoreCase = true)
             : base(minLength, maxLength, trackedChars, CharCase.Lower, ignoreCase)
@@ -31,7 +31,7 @@
                     if (CharsAreEqual(currChar, prevChar))
                     {
                         seqLen++;
-                        if (seqLen > MaxLength)
+                        if (MaxLength.HasValue && seqLen > MaxLength.Value)
                         {
                             return true;
                         }

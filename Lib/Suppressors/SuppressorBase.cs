@@ -15,9 +15,9 @@ namespace Lib.Suppressors
 
         protected bool IsEmpty;
 
-        protected int MaxInternal;
-
         protected int MinInternal;
+
+        protected int? MaxInternal;
 
         protected HashSet<char> TrackedCharset;
 
@@ -25,7 +25,7 @@ namespace Lib.Suppressors
 
         protected readonly Func<char, bool> HasTrackedCase;
 
-        protected SuppressorBase(int min, int max, string trackedChars, CharCase trackedCharCase, bool ignoreCase)
+        protected SuppressorBase(int min, int? max, string trackedChars, CharCase trackedCharCase, bool ignoreCase)
         {
             MaxInternal = NormalizeMax(max);
             MinInternal = NormalizeMin(min, max);
@@ -71,14 +71,15 @@ namespace Lib.Suppressors
             return IsEmpty || TrackedCharset.Contains(c);
         }
 
-        private static int NormalizeMax(int max)
+        private static int? NormalizeMax(int? max)
         {
-            return Math.Max(LowBound, max);
+            return max.HasValue ? Math.Max(LowBound, max.Value) : (int?)null;
         }
 
-        private static int NormalizeMin(int minOccurence, int maxOccurence)
+        private static int NormalizeMin(int min, int? max)
         {
-            return Math.Min(Math.Max(LowBound, minOccurence), maxOccurence);
+            min = Math.Max(LowBound, min);
+            return max.HasValue ? Math.Min(min, max.Value) : min;
         }
     }
 }

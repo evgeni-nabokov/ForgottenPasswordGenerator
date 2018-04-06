@@ -6,13 +6,13 @@ namespace Lib.Suppressors
     {
         public int MinSpace => MinInternal;
 
-        public int MaxSpace => MaxInternal;
+        public int? MaxSpace => MaxInternal;
 
         public CharCase TrackedCharCase => TrackedCharCaseInternal;
 
         public SameCaseSpacingSuppressor(
             int minSpace = 0,
-            int maxSpace = 0,
+            int? maxSpace = 1,
             string trackedChars = null,
             CharCase trackedCharCase = CharCase.Upper)
             : base(minSpace, maxSpace, trackedChars, trackedCharCase, true)
@@ -39,7 +39,7 @@ namespace Lib.Suppressors
             for (var i = 1; i < indices.Count; i++)
             {
                 var space = indices[i] - indices[i - 1] - 1;
-                if (space < MinSpace || space > MaxSpace)
+                if (space < MinSpace || MaxSpace.HasValue && space > MaxSpace.Value)
                 {
                     return true;
                 }

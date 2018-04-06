@@ -28,7 +28,7 @@ namespace Test.Supressors
         [Fact]
         public void OneDuplicateBreaksMinSpaceTest()
         {
-            var supressor = new DuplicatesSpacingSuppressor();
+            var supressor = new DuplicatesSpacingSuppressor(1);
 
             var actual = supressor.BreaksRestrictions("aacd");
 

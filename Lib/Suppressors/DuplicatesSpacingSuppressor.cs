@@ -6,13 +6,13 @@ namespace Lib.Suppressors
     {
         public int MinSpace => MinInternal;
 
-        public int MaxSpace => MaxInternal;
+        public int? MaxSpace => MaxInternal;
 
         public bool IgnoreCase => IgnoreCaseInternal;
 
         public DuplicatesSpacingSuppressor(
-            int minSpace = 1,
-            int maxSpace = 1,
+            int minSpace = 0,
+            int? maxSpace = 1,
             string trackedChars = null,
             bool ignoreCase = true)
             : base(minSpace, maxSpace, trackedChars, CharCase.Lower, ignoreCase)
@@ -21,6 +21,11 @@ namespace Lib.Suppressors
 
         public override bool BreaksRestrictions(string variation)
         {
+            if (MinSpace == 0 && !MaxSpace.HasValue)
+            {
+                return false;
+            }
+
             var foundTrackedChars = new Dictionary<char, IList<int>>();
 
             for (var i = 0; i < variation.Length; i++)
@@ -43,7 +48,7 @@ namespace Lib.Suppressors
                 for (var i = 1; i < indexList.Count; i++)
                 {
                     var space = indexList[i] - indexList[i - 1] - 1;
-                    if (space < MinSpace || space > MaxSpace)
+                    if (space < MinSpace || MaxSpace.HasValue && space > MaxSpace.Value)
                     {
                         return true;
                     }
