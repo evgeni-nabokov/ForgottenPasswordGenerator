@@ -76,9 +76,9 @@ namespace Test.Supressors
         }
 
         [Fact]
-        public void DifferentTrackingCharDifferentCaseCaseInsensitiveNotBreaksTest()
+        public void TrackingCharDifferentCaseCaseSensitiveNotBreaksTest()
         {
-            var supressor = new AdjacentDuplicatesSuppressor(1, 1, "ac");
+            var supressor = new AdjacentDuplicatesSuppressor(1, 1, "ac", false);
 
             var actual = supressor.BreaksRestrictions("abBc");
 

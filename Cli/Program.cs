@@ -1,10 +1,7 @@
 ﻿using System;
 using System.IO;
 using Cli.Params;
-using Cli.Params.Suppressors;
 using Cli.Yaml;
-using Lib.Suppressors;
-using Lib.VariationGenerators;
 using Writer;
 
 namespace Cli

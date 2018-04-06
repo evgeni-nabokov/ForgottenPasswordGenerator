@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace Lib.Suppressors
 {
@@ -20,16 +19,6 @@ namespace Lib.Suppressors
             else
             {
                 _hasTrackedCase = char.IsUpper;
-            }
-
-            if (!string.IsNullOrEmpty(TrackedChars))
-            {
-                BuildTrackedCharset();
-                IsEmpty = false;
-            }
-            else
-            {
-                IsEmpty = true;
             }
         }
 
@@ -59,21 +48,6 @@ namespace Lib.Suppressors
                 }
             }
             return false;
-        }
-
-        private void BuildTrackedCharset()
-        {
-            TrackedCharset = new HashSet<char>(TrackedChars.Length);
-
-            for (var i = 0; i < TrackedChars.Length; i++)
-            {
-                var c = TrackedChars[i];
-                if (char.IsLetter(c))
-                {
-                    c = TrackedCharCase == CharCase.Lower ? Char.ToLower(c) : Char.ToUpper(c);
-                }
-                TrackedCharset.Add(c);
-            }
         }
 
         private readonly Func<char, bool> _hasTrackedCase;

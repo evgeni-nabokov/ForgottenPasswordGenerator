@@ -12,7 +12,6 @@ namespace Lib.Suppressors
             CharCase trackedCharCase = CharCase.Upper)
             : base(minSpace, maxSpace, trackedChars)
         {
-            
             TrackedCharCase = trackedCharCase;
             if (TrackedCharCase == CharCase.Lower)
             {

@@ -13,15 +13,6 @@ namespace Lib.Suppressors
             : base(minLength, maxLength, trackedChars)
         {
             IgnoreCase = ignoreCase;
-            if (!string.IsNullOrEmpty(TrackedChars))
-            {
-                BuildTrackedCharset();
-                IsEmpty = false;
-            }
-            else
-            {
-                IsEmpty = true;
-            }
         }
 
         public bool IgnoreCase { get; }
@@ -59,25 +50,6 @@ namespace Lib.Suppressors
                 }
             }
             return false;
-        }
-
-        private void BuildTrackedCharset()
-        {
-            TrackedCharset = new HashSet<char>(TrackedChars.Length);
-
-            for (var i = 0; i < TrackedChars.Length; i++)
-            {
-                var c = TrackedChars[i];
-                if (char.IsLetter(c) && IgnoreCase)
-                {
-                    TrackedCharset.Add(Char.ToLower(c));
-                    TrackedCharset.Add(Char.ToUpper(c));
-                }
-                else
-                {
-                    TrackedCharset.Add(c);
-                }
-            }
         }
 
         private bool CharsAreEqual(char c1, char c2)
