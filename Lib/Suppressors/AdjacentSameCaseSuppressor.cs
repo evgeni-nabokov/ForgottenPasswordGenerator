@@ -2,27 +2,22 @@
 
 namespace Lib.Suppressors
 {
-    public class AdjacentSameCaseSuppressor : AdjacentSuppressorBase
+    public class AdjacentSameCaseSuppressor : SuppressorBase
     {
+        public int MinLength => MinInternal;
+
+        public int MaxLength => MaxInternal;
+
+        public CharCase TrackedCharCase => TrackedCharCaseInternal;
+
         public AdjacentSameCaseSuppressor(
             int minLength = 0,
             int maxLength = 1,
             string trackedChars = null,
             CharCase trackedCharCase = CharCase.Upper)
-            : base(minLength, maxLength, trackedChars)
+            : base(minLength, maxLength, trackedChars, trackedCharCase, true)
         {
-            TrackedCharCase = trackedCharCase;
-            if (TrackedCharCase == CharCase.Lower)
-            {
-                _hasTrackedCase = char.IsLower;
-            }
-            else
-            {
-                _hasTrackedCase = char.IsUpper;
-            }
         }
-
-        public CharCase TrackedCharCase { get; }
 
         public override bool BreaksRestrictions(string variation)
         {
@@ -30,7 +25,7 @@ namespace Lib.Suppressors
             for (var i = 0; i < variation.Length; i++)
             {
                 var c = variation[i];
-                if (_hasTrackedCase(c) && IsTrackedChar(c))
+                if (HasTrackedCase(c) && IsTrackedChar(c))
                 {
                     seqLen++;
                     if (seqLen > MaxLength)
@@ -49,9 +44,5 @@ namespace Lib.Suppressors
             }
             return false;
         }
-
-        private readonly Func<char, bool> _hasTrackedCase;
-
-        protected override int LowBoundOfMinLength { get; set; } = 0;
     }
 }

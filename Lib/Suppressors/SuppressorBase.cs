@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Lib.Suppressors
 {
@@ -10,17 +9,51 @@ namespace Lib.Suppressors
 
         public abstract bool BreaksRestrictions(string variation);
 
-        protected SuppressorBase(string trackedChars, bool ignoreCase = true)
+        protected bool IgnoreCaseInternal;
+
+        protected CharCase TrackedCharCaseInternal;
+
+        protected bool IsEmpty;
+
+        protected int MaxInternal;
+
+        protected int MinInternal;
+
+        protected HashSet<char> TrackedCharset;
+
+        protected const int LowBound = 0;
+
+        protected readonly Func<char, bool> HasTrackedCase;
+
+        protected SuppressorBase(int min, int max, string trackedChars, CharCase trackedCharCase, bool ignoreCase)
         {
+            MaxInternal = NormalizeMax(max);
+            MinInternal = NormalizeMin(min, max);
             TrackedChars = trackedChars;
-            if (!string.IsNullOrEmpty(trackedChars))
+            TrackedCharCaseInternal = trackedCharCase;
+            if (trackedCharCase == CharCase.Lower)
+            {
+                HasTrackedCase = char.IsLower;
+            }
+            else
+            {
+                HasTrackedCase = char.IsUpper;
+            }
+            IgnoreCaseInternal = ignoreCase;
+            BuildTrackedCharset();
+            IsEmpty = TrackedCharset == null || TrackedCharset.Count > 0;
+        }
+
+        private void BuildTrackedCharset()
+        {
+            if (!string.IsNullOrEmpty(TrackedChars))
             {
                 TrackedCharset = new HashSet<char>();
 
                 for (var i = 0; i < TrackedChars.Length; i++)
                 {
                     var c = TrackedChars[i];
-                    if (char.IsLetter(c) && ignoreCase)
+                    if (char.IsLetter(c) && IgnoreCaseInternal)
                     {
                         TrackedCharset.Add(char.ToLower(c));
                         TrackedCharset.Add(char.ToUpper(c));
@@ -31,12 +64,6 @@ namespace Lib.Suppressors
                     }
                 }
             }
-            IsEmpty = TrackedCharset == null || TrackedCharset.Count > 0;
-        }
-
-        private void BuildTrackedCharset()
-        {
-
         }
 
         protected bool IsTrackedChar(char c)
@@ -44,8 +71,14 @@ namespace Lib.Suppressors
             return IsEmpty || TrackedCharset.Contains(c);
         }
 
-        protected bool IsEmpty;
+        private static int NormalizeMax(int max)
+        {
+            return Math.Max(LowBound, max);
+        }
 
-        protected HashSet<char> TrackedCharset;
+        private static int NormalizeMin(int minOccurence, int maxOccurence)
+        {
+            return Math.Min(Math.Max(LowBound, minOccurence), maxOccurence);
+        }
     }
 }

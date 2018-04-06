@@ -23,11 +23,10 @@ namespace Lib.VariationGenerators
                 throw new ArgumentNullException(nameof(chars), $"Empty parameter: {nameof(chars)}.");
             }
             OriginalChars = chars;
-            MaxLength = maxLength < 1 ? 1 : maxLength;
-            MinLength = NormalizeMinLength(minLength);
+            MaxLength = NormalizeMaxLength(maxLength);
+            MinLength = NormalizeMinLength(minLength, MaxLength);
             CharCase = charCase;
 
-            BuildCharsetGenerator();
             BuildChars();
 
             LoopCount = GetLoopCount();
@@ -93,10 +92,10 @@ namespace Lib.VariationGenerators
 
         private void BuildChars()
         {
-            Chars = _charSetGenerator.GenerateCharset(OriginalChars);
+            Chars = BuildCharsetGenerator().GenerateCharset(OriginalChars);
         }
 
-        private void BuildCharsetGenerator()
+        private ICharsetGenerator BuildCharsetGenerator()
         {
             var builder = new CharsetGeneratorBuilder();
 
@@ -115,12 +114,17 @@ namespace Lib.VariationGenerators
 
             builder.AddUniquenessCharGenerator();
 
-            _charSetGenerator = builder.Build();
+            return builder.Build();
         }
 
-        private int NormalizeMinLength(int minLength)
+        private static int NormalizeMaxLength(int maxLength)
         {
-            return Math.Min(Math.Max(0, minLength), MaxLength);
+            return Math.Max(1, maxLength);
+        }
+
+        private static int NormalizeMinLength(int minLength, int maxLength)
+        {
+            return Math.Min(Math.Max(0, minLength), maxLength);
         }
 
         private ulong GetLoopCount()
@@ -133,7 +137,6 @@ namespace Lib.VariationGenerators
             return result;
         }
 
-        private ICharsetGenerator _charSetGenerator;
         private int[] _permutationState;
         private int _currentLength;
     }

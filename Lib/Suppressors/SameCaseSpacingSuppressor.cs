@@ -1,29 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Lib.Suppressors
 {
-    public class SameCaseSpacingSuppressor : SpacingSuppressorBase
+    public class SameCaseSpacingSuppressor : SuppressorBase
     {
+        public int MinSpace => MinInternal;
+
+        public int MaxSpace => MaxInternal;
+
+        public CharCase TrackedCharCase => TrackedCharCaseInternal;
+
         public SameCaseSpacingSuppressor(
             int minSpace = 0,
             int maxSpace = 0,
             string trackedChars = null,
             CharCase trackedCharCase = CharCase.Upper)
-            : base(minSpace, maxSpace, trackedChars)
+            : base(minSpace, maxSpace, trackedChars, trackedCharCase, true)
         {
-            TrackedCharCase = trackedCharCase;
-            if (TrackedCharCase == CharCase.Lower)
-            {
-                _hasTrackedCase = char.IsLower;
-            }
-            else
-            {
-                _hasTrackedCase = char.IsUpper;
-            }
         }
-
-        public CharCase TrackedCharCase { get; }
 
         public override bool BreaksRestrictions(string variation)
         {
@@ -31,7 +25,7 @@ namespace Lib.Suppressors
 
             for (var i = 0; i < variation.Length; i++)
             {
-                if (IsTrackedChar(variation[i]) && _hasTrackedCase(variation[i]))
+                if (IsTrackedChar(variation[i]) && HasTrackedCase(variation[i]))
                 {
                     indices.Add(i);
                 }
@@ -53,7 +47,5 @@ namespace Lib.Suppressors
 
             return false;
         }
-
-        private readonly Func<char, bool> _hasTrackedCase;
     }
 }

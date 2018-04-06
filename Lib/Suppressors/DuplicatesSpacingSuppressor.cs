@@ -2,28 +2,22 @@
 
 namespace Lib.Suppressors
 {
-    public class DuplicatesSpacingSuppressor : SpacingSuppressorBase
+    public class DuplicatesSpacingSuppressor : SuppressorBase
     {
+        public int MinSpace => MinInternal;
+
+        public int MaxSpace => MaxInternal;
+
+        public bool IgnoreCase => IgnoreCaseInternal;
+
         public DuplicatesSpacingSuppressor(
             int minSpace = 1,
             int maxSpace = 1,
             string trackedChars = null,
             bool ignoreCase = true)
-            : base(minSpace, maxSpace, trackedChars)
+            : base(minSpace, maxSpace, trackedChars, CharCase.Lower, ignoreCase)
         {
-            IgnoreCase = ignoreCase;
-            if (!string.IsNullOrEmpty(TrackedChars))
-            {
-                BuildTrackedCharset();
-                IsEmpty = false;
-            }
-            else
-            {
-                IsEmpty = true;
-            }
         }
-
-        public bool IgnoreCase { get; }
 
         public override bool BreaksRestrictions(string variation)
         {
@@ -34,10 +28,7 @@ namespace Lib.Suppressors
                 var currChar = variation[i];
                 if (IsTrackedChar(currChar))
                 {
-                    if (IgnoreCase)
-                    {
-                        currChar = char.ToUpper(currChar);
-                    }
+                    currChar = IgnoreCaseInternal ? char.ToUpper(currChar) : currChar;
                     if (!foundTrackedChars.TryGetValue(currChar, out var indexList))
                     {
                         indexList = new List<int>();
@@ -60,25 +51,6 @@ namespace Lib.Suppressors
             }
 
             return false;
-        }
-
-        private void BuildTrackedCharset()
-        {
-            TrackedCharset = new HashSet<char>(TrackedChars.Length);
-
-            for (var i = 0; i < TrackedChars.Length; i++)
-            {
-                var c = TrackedChars[i];
-                if (char.IsLetter(c) && IgnoreCase)
-                {
-                    TrackedCharset.Add(char.ToLower(c));
-                    TrackedCharset.Add(char.ToUpper(c));
-                }
-                else
-                {
-                    TrackedCharset.Add(c);
-                }
-            }
         }
     }
 }

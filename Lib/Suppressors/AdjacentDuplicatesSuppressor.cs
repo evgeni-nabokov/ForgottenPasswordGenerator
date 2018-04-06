@@ -1,21 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Lib.Suppressors
+﻿namespace Lib.Suppressors
 {
-    public class AdjacentDuplicatesSuppressor : AdjacentSuppressorBase
+    public class AdjacentDuplicatesSuppressor : SuppressorBase
     {
+        public int MinLength => MinInternal;
+
+        public int MaxLength => MaxInternal;
+
+        public bool IgnoreCase => IgnoreCaseInternal;
+
+        protected new const int LowBound = 1;
+
         public AdjacentDuplicatesSuppressor(
             int minLength = 1,
             int maxLength = 1,
             string trackedChars = null,
             bool ignoreCase = true)
-            : base(minLength, maxLength, trackedChars)
+            : base(minLength, maxLength, trackedChars, CharCase.Lower, ignoreCase)
         {
-            IgnoreCase = ignoreCase;
         }
-
-        public bool IgnoreCase { get; }
 
         public override bool BreaksRestrictions(string variation)
         {
@@ -54,8 +56,8 @@ namespace Lib.Suppressors
 
         private bool CharsAreEqual(char c1, char c2)
         {
-            return IgnoreCase && char.ToUpper(c1) == char.ToUpper(c2)
-                   || !IgnoreCase && c1 == c2;
+            return IgnoreCaseInternal && char.ToUpper(c1) == char.ToUpper(c2)
+                   || !IgnoreCaseInternal && c1 == c2;
         }
     }
 }

@@ -1,41 +1,34 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Lib.Suppressors
 {
     public class CharOccurenceSuppressor : SuppressorBase
     {
+        public int MinOccurence => MinInternal;
+
+        public int MaxOccurence => MaxInternal;
+
         public CharOccurenceSuppressor(
             int minOccurence = 0,
             int maxOccurence = 1,
             string trackedChars = null,
             bool ignoreCase = true)
-            : base(trackedChars, ignoreCase)
+            : base(minOccurence, maxOccurence, trackedChars, CharCase.Lower, ignoreCase)
         {
-            MaxOccurence = NormalizeMaxOccurence(maxOccurence);
-            MinOccurence = NormalizeMinOccurence(minOccurence, MaxOccurence);
             _counter = new Dictionary<char, int>();
         }
-
-        public int MinOccurence { get; }
-
-        public int MaxOccurence { get; }
 
         public override bool BreaksRestrictions(string variation)
         {
             for (var i = 0; i < variation.Length; i++)
             {
-                var c = variation[i];
-                if (IsTrackedChar(c))
+                var currChar = variation[i];
+                if (IsTrackedChar(currChar))
                 {
-                    if (MaxOccurence == 0)
-                    {
-                        return true;
-                    }
-
-                    _counter.TryGetValue(c, out var currentCount);
-                    _counter[c] = currentCount + 1;
-                    if (_counter[c] > MaxOccurence)
+                    currChar = IgnoreCaseInternal ? char.ToUpper(currChar) : currChar;
+                    _counter.TryGetValue(currChar, out var currentCount);
+                    _counter[currChar] = currentCount + 1;
+                    if (_counter[currChar] > MaxOccurence)
                     {
                         _counter.Clear();
                         return true;
@@ -44,16 +37,6 @@ namespace Lib.Suppressors
             }
             _counter.Clear();
             return false;
-        }
-
-        private static int NormalizeMaxOccurence(int maxOccurence)
-        {
-            return Math.Max(1, maxOccurence);
-        }
-
-        private static int NormalizeMinOccurence(int minOccurence, int maxOccurence)
-        {
-            return Math.Min(Math.Max(0, minOccurence), maxOccurence);
         }
 
         private readonly IDictionary<char, int> _counter;
