@@ -12,7 +12,7 @@ namespace Cli
         private const string StatisticsFileExtension = "stat";
         private const ulong ChunkSize = 500_000;
 
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             var loader = new YamlParamLoader();
             var paramFilename = args[0];
@@ -36,12 +36,18 @@ namespace Cli
                 );
 
                 writer = new FileWriter(outputFilename);
-                Console.WriteLine($"Write variations into the file {outputFilename}? (y/n)");
+                Console.WriteLine($"Write variations into {writer.Destination}? (y/n)");
+            }
+            else if (programParams.Output == OutputStream.MongoDB)
+            {
+                var p = programParams.MongoDB;
+                writer = new MongoDBWriter(p.ConnectionString, p.Database, p.Collection);
+                Console.WriteLine($"Write variations into {writer.Destination}? (y/n)");
             }
             else
             {
                 writer = new ConsoleWriter();
-                Console.WriteLine("Write variations to console? (y/n)");
+                Console.WriteLine($"Write variations to {writer.Destination}? (y/n)");
             }
 
             if (Console.ReadLine()?.ToLower() != "y")
@@ -68,7 +74,7 @@ namespace Cli
                 }
             } while (generator.MoveNext());
 
-            writer.Dispose();
+            writer.Close();
 
             loopDiff = generator.LoopNumber - lastLoopNumber;
             if (loopDiff > 0)
@@ -88,8 +94,11 @@ namespace Cli
             {
                 Console.WriteLine($"Statistics saved into {statisticsFilePath}.");
             }
+
+            var r = writer.Statistics.Received;
+            var w = writer.Statistics.Written;
             Console.WriteLine(
-                $"{writer.Statistics.Written:N0} of {writer.Statistics.Received:N0} variations saved into {writer.Destination}.");
+                $"{w:N0} of {r:N0} variations saved into {writer.Destination} ({w / r * 100:N0}%).");
 
             Console.WriteLine("Done.");
             Console.ReadKey();
@@ -107,8 +116,8 @@ namespace Cli
             using (var statFileStream = new FileStream(filePath, FileMode.Create))
             using (var statWriter = new StreamWriter(statFileStream))
             {
-                statWriter.WriteLine(statistics.Written);
                 statWriter.WriteLine(statistics.Received);
+                statWriter.WriteLine(statistics.Written);
             }
         }
     }

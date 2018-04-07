@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Writer
 {
@@ -26,6 +24,10 @@ namespace Writer
         }
 
         public void Dispose()
+        {
+        }
+
+        public void Close()
         {
         }
     }

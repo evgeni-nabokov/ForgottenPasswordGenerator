@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Text;
 
 namespace Writer
@@ -32,6 +31,11 @@ namespace Writer
         }
 
         public void Dispose()
+        {
+            Close();
+        }
+
+        public void Close()
         {
             _streamWriter?.Dispose();
         }

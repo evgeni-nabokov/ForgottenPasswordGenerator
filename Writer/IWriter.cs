@@ -6,6 +6,7 @@ namespace Writer
     {
         void Write(string variation);
         void Flush();
+        void Close();
         string Destination { get; }
         Statistics Statistics { get; }
     }
