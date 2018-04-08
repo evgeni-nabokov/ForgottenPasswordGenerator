@@ -16,6 +16,11 @@ namespace Cli
         {
             var loader = new YamlParamLoader();
             var paramFilename = args[0];
+            if (!File.Exists(paramFilename))
+            {
+                Console.WriteLine($"File {paramFilename} does not exist.");
+            }
+
             var filenameWithoutExtension = Path.GetFileNameWithoutExtension(paramFilename);
             var directoryName = Path.GetDirectoryName(paramFilename);
 
