@@ -19,6 +19,8 @@ namespace Lib.Suppressors
 
         protected int? MaxInternal;
 
+        protected bool Inverse;
+
         protected HashSet<char> TrackedCharset;
 
         protected const int LowBound = 0;
@@ -41,7 +43,7 @@ namespace Lib.Suppressors
             }
             IgnoreCaseInternal = ignoreCase;
             BuildTrackedCharset();
-            IsEmpty = TrackedCharset == null || TrackedCharset.Count > 0;
+            IsEmpty = TrackedCharset == null;
         }
 
         private void BuildTrackedCharset()
@@ -49,18 +51,30 @@ namespace Lib.Suppressors
             if (!string.IsNullOrEmpty(TrackedChars))
             {
                 TrackedCharset = new HashSet<char>();
-
-                for (var i = 0; i < TrackedChars.Length; i++)
+                if (TrackedChars == "!")
                 {
-                    var c = TrackedChars[i];
-                    if (char.IsLetter(c) && IgnoreCaseInternal)
+                    TrackedCharset.Add('!');
+                }
+                else
+                {
+                    var index = 0;
+                    if (TrackedChars.StartsWith("!"))
                     {
-                        TrackedCharset.Add(char.ToLower(c));
-                        TrackedCharset.Add(char.ToUpper(c));
+                        Inverse = true;
+                        index = 1;
                     }
-                    else
+                    for (; index < TrackedChars.Length; index++)
                     {
-                        TrackedCharset.Add(c);
+                        var c = TrackedChars[index];
+                        if (char.IsLetter(c) && IgnoreCaseInternal)
+                        {
+                            TrackedCharset.Add(char.ToLower(c));
+                            TrackedCharset.Add(char.ToUpper(c));
+                        }
+                        else
+                        {
+                            TrackedCharset.Add(c);
+                        }
                     }
                 }
             }
@@ -68,7 +82,13 @@ namespace Lib.Suppressors
 
         protected bool IsTrackedChar(char c)
         {
-            return IsEmpty || TrackedCharset.Contains(c);
+            if (IsEmpty)
+            {
+                return true;
+            }
+
+            var contains = TrackedCharset.Contains(c);
+            return !Inverse && contains || Inverse && !contains;
         }
 
         private static int? NormalizeMax(int? max)

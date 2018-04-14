@@ -16,6 +16,26 @@ namespace Test.Supressors
         }
 
         [Fact]
+        public void SpecificDuplicatesNotBreaksTest()
+        {
+            var supressor = new CharOccurenceSuppressor(trackedChars: "ab");
+
+            var actual = supressor.BreaksRestrictions("abccdd");
+
+            Assert.False(actual);
+        }
+
+        [Fact]
+        public void NoSpecificDuplicatesBreaksTest()
+        {
+            var supressor = new CharOccurenceSuppressor(trackedChars: "!ab");
+
+            var actual = supressor.BreaksRestrictions("abccdd");
+
+            Assert.True(actual);
+        }
+
+        [Fact]
         public void DifferentCaseDuplicatesTest()
         {
             var supressor = new CharOccurenceSuppressor();

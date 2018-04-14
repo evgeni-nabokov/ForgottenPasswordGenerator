@@ -4,23 +4,23 @@ namespace Lib.Suppressors
 {
     public class CharOccurenceSuppressor : SuppressorBase
     {
-        public int MinOccurence => MinInternal;
+        public int MinOccurs => MinInternal;
 
-        public int? MaxOccurence => MaxInternal;
+        public int? MaxOccurs => MaxInternal;
 
         public CharOccurenceSuppressor(
-            int minOccurence = 0,
-            int? maxOccurence = 1,
+            int minOccurs = 0,
+            int? maxOccurs = 1,
             string trackedChars = null,
             bool ignoreCase = true)
-            : base(minOccurence, maxOccurence, trackedChars, CharCase.Lower, ignoreCase)
+            : base(minOccurs, maxOccurs, trackedChars, CharCase.Lower, ignoreCase)
         {
             _counter = new Dictionary<char, int>();
         }
 
         public override bool BreaksRestrictions(string variation)
         {
-            if (MinOccurence == 0 && !MaxOccurence.HasValue)
+            if (MinOccurs == 0 && !MaxOccurs.HasValue)
             {
                 return false;
             }
@@ -33,7 +33,7 @@ namespace Lib.Suppressors
                     currChar = IgnoreCaseInternal ? char.ToUpper(currChar) : currChar;
                     _counter.TryGetValue(currChar, out var currentCount);
                     currentCount++;
-                    if (MaxOccurence.HasValue && currentCount > MaxOccurence.Value)
+                    if (MaxOccurs.HasValue && currentCount > MaxOccurs.Value)
                     {
                         _counter.Clear();
                         return true;
@@ -42,11 +42,11 @@ namespace Lib.Suppressors
                 }
             }
 
-            if (MinOccurence > 0)
+            if (MinOccurs > 0)
             {
                 foreach (var occurences in _counter.Values)
                 {
-                    if (occurences < MinOccurence)
+                    if (occurences < MinOccurs)
                     {
                         return true;
                     }
