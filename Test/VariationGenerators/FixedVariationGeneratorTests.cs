@@ -92,7 +92,7 @@ namespace Test.VariationGenerators
         [Fact]
         public void RussianCharMapperStringTest()
         {
-            var generator = new FixedVariationGenerator("éöóêåíãøùçõúôûâàïğîëäæıÿ÷ñìèòüáş¸ÉÖÓÊÅÍÃØÙÇÕÚÔÛÂÀÏĞÎËÄÆİß×ÑÌÈÒÜÁŞ¨",
+            var generator = new FixedVariationGenerator("Ğ¹Ñ†ÑƒĞºĞµĞ½Ğ³ÑˆÑ‰Ğ·Ñ…ÑŠÑ„Ñ‹Ğ²Ğ°Ğ¿Ñ€Ğ¾Ğ»Ğ´Ğ¶ÑÑÑ‡ÑĞ¼Ğ¸Ñ‚ÑŒĞ±ÑÑ‘Ğ™Ğ¦Ğ£ĞšĞ•ĞĞ“Ğ¨Ğ©Ğ—Ğ¥ĞªĞ¤Ğ«Ğ’ĞĞŸĞ ĞĞ›Ğ”Ğ–Ğ­Ğ¯Ğ§Ğ¡ĞœĞ˜Ğ¢Ğ¬Ğ‘Ğ®Ğ",
                 null, CharCase.AsDefined, null, new RussianToEnglishMapper());
 
             var actual = generator.GetVariationsString();
